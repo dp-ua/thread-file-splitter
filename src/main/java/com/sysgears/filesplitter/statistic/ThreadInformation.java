@@ -1,6 +1,7 @@
 package com.sysgears.filesplitter.statistic;
 
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -25,11 +26,11 @@ public class ThreadInformation {
     }
 
     /**
-     * Get map with all statistic
+     * Get map with all statistic. Sorted by Key
      *
      * @return Map, where key - thread name, value - info about this thread
      */
     public Map<String, String> getMap() {
-        return map;
+        return new TreeMap<String, String>(map);
     }
 }
