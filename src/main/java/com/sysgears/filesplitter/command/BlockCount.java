@@ -14,19 +14,19 @@ public class BlockCount {
     private final long blockSize;
 
     /**
-     * Full lenght
+     * Full len of part
      */
-    private final long lenght;
+    private final long length;
 
     /**
-     * Set the block size and full lenght
+     * Set the block size and full length
      *
      * @param blockSize size of blocks
-     * @param lenght full len of part
+     * @param length full len of part
      */
-    public BlockCount(long blockSize, long lenght) {
+    public BlockCount(long blockSize, long length) {
         this.blockSize = blockSize;
-        this.lenght = lenght;
+        this.length = length;
     }
 
     /**
@@ -36,8 +36,8 @@ public class BlockCount {
      * to the length and size of the block.
      */
     public long getCount() {
-        long result = lenght / blockSize;
-        result += lenght % blockSize > 0 ? 1 : 0;
+        long result = length / blockSize;
+        result += length % blockSize > 0 ? 1 : 0;
 
         return result;
     }
@@ -47,13 +47,13 @@ public class BlockCount {
      *
      * @return int. Example: We have  9 blocks - the return value will be 2 characters: 01, 02, 03 ... 09
      */
-    public int getDimenson(){
-        int dimenson=1;
-        long tempLenght = lenght/blockSize;
-        while (tempLenght>0) {
-            tempLenght/=10;
-            dimenson++;
+    public int getDimension(){
+        int dimension=1;
+        long tempLength = length /blockSize;
+        while (tempLength>0) {
+            tempLength/=10;
+            dimension++;
         }
-        return dimenson;
+        return dimension;
     }
 }
