@@ -15,14 +15,15 @@ public class TimeController {
     private final Calendar startTime;
 
     /**
-     * Set instance time
+     * Set start time when instance oject
      */
     public TimeController() {
         startTime = Calendar.getInstance();
     }
 
     /**
-     * Returns time in sec betwen start and now times
+     * Returns time in sec betwen start and now
+     *
      * @return distance in seconds
      */
     public long getRemainingInSec() {
