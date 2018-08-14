@@ -61,7 +61,7 @@ public class Main {
 
                     /* строки для тестирования
                     split -p /home/pavel/IdeaProjects/test/test.file -s 200M
-                    split -p /home/pavel/IdeaProjects/test/test3.file -s 800M
+                    split -p /home/pavel/IdeaProjects/test/test3.file -s 600M
                     */
 
                     TimeController timeController = new TimeController();
@@ -97,7 +97,8 @@ public class Main {
                         }
                     statistic.interrupt();
 
-                    userView.send("Splitting complete. Time remaining: " + timeController.getRemainingInSec() + "s");
+                    userView.send("Splitting complete, parts:"+ blockCount.getCount()+", time remaining: " + timeController.getRemainingInSec() + "s");
+                    userView.send("Files name: "+sourceFileName+"["+String.format("%0" + blockCount.getDimension() + "d-%0" + blockCount.getDimension() + "d]",1,blockCount.getCount()));
                     inChannel.close();
                 } else userView.send("Command not recognized");
 
