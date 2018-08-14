@@ -74,7 +74,7 @@ public class ThreadInformation implements Runnable {
                     if ("done".equals(pair.getValue())) progress+=100;
                     else if ("start".equals(pair.getValue())) progress+=0;
                     else try {
-                        progress+=Integer.parseInt(pair.getKey().split("%")[0]);
+                        progress+=Integer.parseInt(pair.getValue().substring(0,pair.getValue().length()-1));
                         } catch (Exception e)
                         {progress+=0;}
 
