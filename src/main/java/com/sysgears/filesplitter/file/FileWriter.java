@@ -4,8 +4,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.channels.NonWritableChannelException;
 import java.util.concurrent.Callable;
-
 
 /**
  * A streaming method for writing a piece of data from one file to another.
@@ -33,14 +34,14 @@ public class FileWriter implements Callable<String> {
 
     /**
      * Size of the data block to copy.
-     *
+     * <p>
      * The block size can be specified more than the size of the available data in the file.
      */
     private final long size;
 
     /**
      * Add data to an existing file or create a new one.
-     *
+     * <p>
      * true - append data, false - make new file
      */
     private final boolean append;
@@ -55,10 +56,10 @@ public class FileWriter implements Callable<String> {
      *
      * @param sourceFile - source file
      * @param outputFile - distanation file
-     * @param startPos - start posoition in source file
-     * @param size - size of block to copy.
+     * @param startPos   - start posoition in source file
+     * @param size       - size of block to copy.
      * @param threadName - thread name
-     * @param append - false - make new file, true - append data to exist file
+     * @param append     - false - make new file, true - append data to exist file
      */
     public FileWriter(File sourceFile, File outputFile, long startPos, long size, String threadName, boolean append) {
         this.sourceFile = sourceFile;
@@ -71,6 +72,7 @@ public class FileWriter implements Callable<String> {
 
     /**
      * Moves a block of data from one file to another in a stream. The result and progress outputs in the thread name
+     *
      * @return Future string. Say "done + Thread name" If the result of the work was successful
      * @throws Exception throw IllegalArgument if params is wrong
      */
@@ -101,7 +103,6 @@ public class FileWriter implements Callable<String> {
 
                 Thread.currentThread().setName(threadName + ":" + percent + "%");
                 percent++;
-
             }
         } else inputChannel.transferTo(startPos, workSize, outputChannel);
         outputChannel.close();
