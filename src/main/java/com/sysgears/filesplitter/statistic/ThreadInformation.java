@@ -69,11 +69,20 @@ public class ThreadInformation implements Runnable {
                     }
                 }
                 StringBuilder out = new StringBuilder();
+                int progress=0;
                 for (Map.Entry<String, String> pair : getMap().entrySet()) {
+                    if ("done".equals(pair.getValue())) progress+=100;
+                    else if ("start".equals(pair.getValue())) progress+=0;
+                    else try {
+                        progress+=Integer.parseInt(pair.getKey().split("%")[0]);
+                        } catch (Exception e)
+                        {progress+=0;}
+
                     out.append(pair.getKey()).append(":").append(pair.getValue()).append(", ");
                 }
+                progress/=map.size();
                 out.append("time remaining:").append(timeController.getRemainingInSec()).append("s");
-                userInOut.write(out.toString());
+                userInOut.write("Total:"+progress+"%, "+out.toString());
                 Thread.yield();
 
             } catch (InterruptedException e) {
