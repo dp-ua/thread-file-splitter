@@ -1,15 +1,16 @@
 package com.sysgears.filesplitter.command;
 
+/**
+ * List of available commands
+ */
 public enum CommandType {
-    //список доступных рабочих команд
     SPLIT,
     EXIT,
     HELP,
     BLANK,
-    ERROR
+    ERROR,
+    THREADS,
     ;
-
-
 }
 
 
