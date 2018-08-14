@@ -103,6 +103,7 @@ public class FileWriter implements Callable<String> {
 
                 Thread.currentThread().setName(threadName + ":" + percent + "%");
                 percent++;
+                Thread.yield();
             }
         } else inputChannel.transferTo(startPos, workSize, outputChannel);
         outputChannel.close();
