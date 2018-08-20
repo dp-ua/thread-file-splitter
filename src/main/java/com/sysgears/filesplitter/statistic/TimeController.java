@@ -15,7 +15,7 @@ public class TimeController {
     private final Calendar startTime;
 
     /**
-     * Set start time when instance oject
+     * Set start time when instance object
      */
     public TimeController() {
         startTime = Calendar.getInstance();
