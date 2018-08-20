@@ -1,11 +1,11 @@
 package com.sysgears.filesplitter.file;
 
+import com.sysgears.filesplitter.statistic.ThreadsStatistic;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.channels.NonWritableChannelException;
 import java.util.concurrent.Callable;
 
 /**
@@ -15,7 +15,13 @@ import java.util.concurrent.Callable;
  * Displays information about the flow progress in the name of the thread
  * It can be used both for dividing a file into parts and for collecting a file into one whole
  */
-public class FileWriter implements Callable<String> {
+public class CopyBlockData implements Callable<String> {
+
+    /**
+     * Statistic holder.
+     */
+    private final ThreadsStatistic statistic;
+
 
     /**
      * Source file, we take the data from it
@@ -61,13 +67,14 @@ public class FileWriter implements Callable<String> {
      * @param threadName - thread name
      * @param append     - false - make new file, true - append data to exist file
      */
-    public FileWriter(File sourceFile, File outputFile, long startPos, long size, String threadName, boolean append) {
+    public CopyBlockData(File sourceFile, File outputFile, long startPos, long size, String threadName, boolean append, ThreadsStatistic statistic) {
         this.sourceFile = sourceFile;
         this.startPos = startPos;
         this.size = size;
         this.threadName = threadName;
         this.outputFile = outputFile;
         this.append = append;
+        this.statistic = statistic;
     }
 
     /**
@@ -77,7 +84,7 @@ public class FileWriter implements Callable<String> {
      * @throws Exception throw IllegalArgument if params is wrong
      */
     public String call() throws Exception {
-        Thread.currentThread().setName(threadName + ":start");
+        statistic.put(threadName, "start");
 
         FileChannel outputChannel;
         if (!append && outputFile.exists()) {
@@ -87,7 +94,7 @@ public class FileWriter implements Callable<String> {
         FileChannel inputChannel = new FileInputStream(sourceFile).getChannel();
         if (startPos >= inputChannel.size()) throw new IllegalArgumentException("Start positions is out of file");
         outputChannel = new FileOutputStream(outputFile, true).getChannel();
-        Thread.currentThread().setName(threadName + ":0%");
+        statistic.put(threadName, "0");
         long workSize = (startPos + size) > inputChannel.size() ? inputChannel.size() - startPos - 1 : size;
         if (workSize > 100) {
             long pos = startPos;
@@ -101,14 +108,14 @@ public class FileWriter implements Callable<String> {
                     allSize -= splitSize;
                 else splitSize = allSize;
 
-                Thread.currentThread().setName(threadName + ":" + percent + "%");
+                statistic.put(threadName, Integer.toString(percent));
                 percent++;
                 Thread.yield();
             }
         } else inputChannel.transferTo(startPos, workSize, outputChannel);
         outputChannel.close();
         inputChannel.close();
-        Thread.currentThread().setName(threadName + ":100%");
+        statistic.put(threadName, "100");
         return threadName + ":done";
     }
 }
