@@ -13,7 +13,6 @@ public enum CommandType {
     private String description;
 
     CommandType(String description) {
-
         this.description = description;
     }
 }
