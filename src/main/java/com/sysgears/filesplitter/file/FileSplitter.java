@@ -44,10 +44,11 @@ public class FileSplitter {
      * Parse arguments and start threads for splitting file
      *
      * @param arguments params for splitting
+     * @param activeThreadsCount set count of active threads in thread pool
      * @throws MyException if there were any errors when parsing
      *                     the parameters or during the separation of files.
      */
-    public void Split(Map<String, String> arguments) throws MyException {
+    public void Split(Map<String, String> arguments, int activeThreadsCount) throws MyException {
 
         if (!arguments.containsKey("-p") | !arguments.containsKey("-s"))
             throw new MyException(TypeException.WRONGARG);
@@ -64,7 +65,7 @@ public class FileSplitter {
         if (checker.checkSize(blockSize, fullSize)) {
             threadsStatistic.clearAll();
 
-            ExecutorService executorService = Executors.newFixedThreadPool(4);
+            ExecutorService executorService = Executors.newFixedThreadPool(activeThreadsCount);
             ArrayList<Future<String>> result = new ArrayList<>();
 
             for (int i = 0; i < blockInfo.getCount(blockSize, fullSize); i++) {
