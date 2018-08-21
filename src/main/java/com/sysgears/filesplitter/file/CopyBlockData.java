@@ -1,6 +1,6 @@
 package com.sysgears.filesplitter.file;
 
-import com.sysgears.filesplitter.statistic.ThreadsStatistic;
+import com.sysgears.filesplitter.statistic.AbstractStatistic;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,7 +20,7 @@ public class CopyBlockData implements Callable<String> {
     /**
      * Statistic holder.
      */
-    private final ThreadsStatistic statistic;
+    private final AbstractStatistic statistic;
 
 
     /**
@@ -58,7 +58,34 @@ public class CopyBlockData implements Callable<String> {
     private final String threadName;
 
     /**
-     * Set basic params for work
+     * If the value is false, the streaming method does not work with the statistics and does not enter data into it
+     */
+    private boolean useStatistic;
+
+    /**
+     * Set basic params for work with statistic
+     *
+     * @param sourceFile - source file
+     * @param outputFile - distanation file
+     * @param startPos   - start posoition in source file
+     * @param size       - size of block to copy.
+     * @param threadName - thread name
+     * @param append     - false - make new file, true - append data to exist file
+     * @param statistic - statistic holder
+     */
+    public CopyBlockData(File sourceFile, File outputFile, long startPos, long size, String threadName, boolean append, AbstractStatistic statistic) {
+        this.sourceFile = sourceFile;
+        this.startPos = startPos;
+        this.size = size;
+        this.threadName = threadName;
+        this.outputFile = outputFile;
+        this.append = append;
+        this.statistic = statistic;
+        useStatistic=true;
+    }
+
+    /**
+     * Set basic params for work without statistic
      *
      * @param sourceFile - source file
      * @param outputFile - distanation file
@@ -67,14 +94,15 @@ public class CopyBlockData implements Callable<String> {
      * @param threadName - thread name
      * @param append     - false - make new file, true - append data to exist file
      */
-    public CopyBlockData(File sourceFile, File outputFile, long startPos, long size, String threadName, boolean append, ThreadsStatistic statistic) {
+    public CopyBlockData(File sourceFile, File outputFile, long startPos, long size, String threadName, boolean append) {
         this.sourceFile = sourceFile;
         this.startPos = startPos;
         this.size = size;
         this.threadName = threadName;
         this.outputFile = outputFile;
         this.append = append;
-        this.statistic = statistic;
+        statistic=null;
+        useStatistic=false;
     }
 
     /**
@@ -84,7 +112,8 @@ public class CopyBlockData implements Callable<String> {
      * @throws Exception throw IllegalArgument if params is wrong
      */
     public String call() throws Exception {
-        statistic.put(threadName, "start");
+
+        if (useStatistic) statistic.put(threadName, "start");
 
         FileChannel outputChannel;
         if (!append && outputFile.exists()) {
@@ -94,7 +123,7 @@ public class CopyBlockData implements Callable<String> {
         FileChannel inputChannel = new FileInputStream(sourceFile).getChannel();
         if (startPos >= inputChannel.size()) throw new IllegalArgumentException("Start positions is out of file");
         outputChannel = new FileOutputStream(outputFile, true).getChannel();
-        statistic.put(threadName, "0");
+        if (useStatistic) statistic.put(threadName, "0");
         long workSize = (startPos + size) > inputChannel.size() ? inputChannel.size() - startPos - 1 : size;
         if (workSize > 100) {
             long pos = startPos;
@@ -108,14 +137,14 @@ public class CopyBlockData implements Callable<String> {
                     allSize -= splitSize;
                 else splitSize = allSize;
 
-                statistic.put(threadName, Integer.toString(percent));
+                if (useStatistic) statistic.put(threadName, Integer.toString(percent));
                 percent++;
                 Thread.yield();
             }
         } else inputChannel.transferTo(startPos, workSize, outputChannel);
         outputChannel.close();
         inputChannel.close();
-        statistic.put(threadName, "100");
+        if (useStatistic) statistic.put(threadName, "100");
         return threadName + ":done";
     }
 }
