@@ -24,11 +24,10 @@ public class TimeController {
     /**
      * Returns time in sec betwen start and now
      *
-     * @return distance in seconds
+     * @return distance in seconds from initialization
      */
     public long getRemainingInSec() {
         Calendar now = Calendar.getInstance();
-
         return (now.getTimeInMillis()-startTime.getTimeInMillis())/1000;
     }
 }
