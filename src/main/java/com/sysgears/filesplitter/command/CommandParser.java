@@ -1,7 +1,7 @@
 package com.sysgears.filesplitter.command;
 
-import com.sysgears.filesplitter.Exception.MyException;
-import com.sysgears.filesplitter.Exception.TypeException;
+import com.sysgears.filesplitter.Exception.ExceptionTypes;
+import com.sysgears.filesplitter.Exception.SplitterExceptions;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,15 +43,15 @@ public class CommandParser {
     /**
      * Get type of command
      *
-     * @return type of command in CommandType. If cant parsing command - return CommandType.ERROR
+     * @return type of command in CommandTypes. If cant parsing command - return CommandTypes.ERROR
      */
-    public CommandType getCommand() {
-        if (args.length == 0) return CommandType.BLANK;
+    public CommandTypes getCommand() {
+        if (args.length == 0) return CommandTypes.BLANK;
 
         try {
-            return CommandType.valueOf(args[0].toUpperCase());
+            return CommandTypes.valueOf(args[0].toUpperCase());
         } catch (IllegalArgumentException e) {
-            return CommandType.ERROR;
+            return CommandTypes.ERROR;
         }
     }
 
@@ -59,15 +59,15 @@ public class CommandParser {
      * Get arguments from input string
      *
      * @return Map of arguments
-     * @throws MyException if cant parse arguments
+     * @throws SplitterExceptions if cant parse arguments
      */
-    public Map<String, String> getArguments() throws MyException {
+    public Map<String, String> getArguments() throws SplitterExceptions {
         Map<String, String> map = new HashMap<>();
-        if (args.length <= 1) throw new MyException(TypeException.WRONGARG);
-        if ((args.length - 1) % 2 != 0) throw new MyException(TypeException.WRONGARG);
+        if (args.length <= 1) throw new SplitterExceptions(ExceptionTypes.WRONGARG);
+        if ((args.length - 1) % 2 != 0) throw new SplitterExceptions(ExceptionTypes.WRONGARG);
 
         for (int i = 1; i < args.length; i = i + 2) {
-            if (args[i].charAt(0) != '-') throw new MyException(TypeException.WRONGARG);
+            if (args[i].charAt(0) != '-') throw new SplitterExceptions(ExceptionTypes.WRONGARG);
             map.put(args[i], args[i + 1]);
 
         }

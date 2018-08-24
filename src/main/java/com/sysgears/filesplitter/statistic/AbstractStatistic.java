@@ -19,6 +19,7 @@ public interface AbstractStatistic {
 
     /**
      * Put some record to map
+     *
      * @param key name of thread
      * @param value progress
      * @return true if operation was successful
@@ -37,16 +38,4 @@ public interface AbstractStatistic {
      * Clear map
      */
     void clearAll();
-
-    /**
-     * Get trigger of done
-     * @return true if all done
-     */
-    boolean isDone();
-
-    /**
-     * Set triiger done
-     * @param done boolean
-     */
-    void setDone(boolean done);
 }

@@ -50,6 +50,7 @@ public class StatisticViewer implements Runnable {
                 Thread.sleep(1000);
                 if (Thread.interrupted()) return;
                 Map<String, String> map = statistic.getAll();
+
                 int progress = 0;
                 StringBuilder out = new StringBuilder();
                 if (map.size() == 0) continue;
@@ -75,7 +76,7 @@ public class StatisticViewer implements Runnable {
                         .append("time remaining:")
                         .append(timeController.getRemainingInSec())
                         .append("s");
-                userInOut.write("Total:" + progress + "%, " + out.toString());
+
                 StringBuilder progressBar = new StringBuilder();
                 progressBar
                         .append("[");
@@ -84,9 +85,11 @@ public class StatisticViewer implements Runnable {
                     progressBar
                             .append(i == progress ? "<" + progress + ">" : symbol);
                 }
-                progressBar
-                        .append("]");
+                progressBar.append("]");
+
+                //userInOut.write("Total:" + progress + "%, " + out.toString());
                 userInOut.write(progressBar.toString());
+
                 Thread.yield();
             } catch (InterruptedException e) {
                 return;

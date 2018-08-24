@@ -3,14 +3,16 @@ package com.sysgears.filesplitter.Exception;
 /**
  * Personal types of Exceptions
  */
-public enum TypeException {
+public enum ExceptionTypes {
     NOFILE("file does not exist"),
     WRONGNAME("wrong file name"),
     NOSPACE("not enough free disk space"),
     WRONGBLOCKSIZE("split is not possible. the block size exceeds the file size"),
     WRONGENTERBLOCK("block size is incorrect"),
     WRONGARG("arguments are set incorrectly"),
-    STANDART("standart error")
+    STANDART("standart error"),
+    NOTDIR("wrong directory specified"),
+    NOPARTSFILE("no files found for the merging in the specified directory")
     ;
 
     /**
@@ -32,7 +34,7 @@ public enum TypeException {
      *
      * @param description of Exception
      */
-    TypeException(String description) {
+    ExceptionTypes(String description) {
         this.description = description;
     }
 }

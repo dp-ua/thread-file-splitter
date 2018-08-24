@@ -3,12 +3,12 @@ package com.sysgears.filesplitter.Exception;
 /**
  * Own class for handling errors in the project
  */
-public class MyException extends Exception {
+public class SplitterExceptions extends Exception {
 
     /**
-     * Type of Exception. @see TypeException
+     * Type of Exception. @see ExceptionTypes
      */
-    private final TypeException typeException;
+    private final ExceptionTypes exceptionTypes;
 
     /**
      * Message of exception
@@ -18,11 +18,11 @@ public class MyException extends Exception {
     /**
      * Set type and message
      *
-     * @param typeException @see TypeException
+     * @param exceptionTypes @see ExceptionTypes
      */
-    public MyException(TypeException typeException) {
-        this.typeException = typeException;
-        this.message = typeException.getDescription();
+    public SplitterExceptions(ExceptionTypes exceptionTypes) {
+        this.exceptionTypes = exceptionTypes;
+        this.message = exceptionTypes.getDescription();
     }
 
     /**
@@ -30,8 +30,8 @@ public class MyException extends Exception {
      *
      * @param message of Exception
      */
-    public MyException(String message) {
-        this.typeException = TypeException.STANDART;
+    public SplitterExceptions(String message) {
+        this.exceptionTypes = ExceptionTypes.STANDART;
         this.message = message;
     }
 
