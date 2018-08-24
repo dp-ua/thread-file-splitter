@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Implementation of statistics based on ConcurrentHashMap
  */
-public class StatisticInConcurrentMap implements AbstractStatistic {
+public class ConcurrentMapStatistic implements AbstractStatistic {
 
     /**
      * Map for holding statistic

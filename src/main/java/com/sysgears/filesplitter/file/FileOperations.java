@@ -1,10 +1,8 @@
 package com.sysgears.filesplitter.file;
 
-import com.sysgears.filesplitter.Exception.ExceptionTypes;
-import com.sysgears.filesplitter.Exception.SplitterExceptions;
 import com.sysgears.filesplitter.file.block.movers.BigBlockMover;
+import com.sysgears.filesplitter.file.operation.OperationExceptions;
 import com.sysgears.filesplitter.statistic.AbstractStatistic;
-import com.sysgears.filesplitter.statistic.StatisticInConcurrentMap;
 import com.sysgears.filesplitter.user.UserInOut;
 
 import java.io.File;
@@ -24,6 +22,7 @@ import java.util.concurrent.Future;
  * and the correctness of the input of data for stakeout.
  */
 public class FileOperations {
+
     /**
      * user interface
      */
@@ -49,13 +48,13 @@ public class FileOperations {
      * Parse arguments and start threads for splitting file
      *
      * @param arguments params for splitting
-     * @throws SplitterExceptions if there were any errors when parsing
+     * @throws OperationExceptions if there were any errors when parsing
      *                            the parameters or during the separation of files.
      */
-    public void split(Map<String, String> arguments) throws SplitterExceptions {
+    public void split(Map<String, String> arguments) throws OperationExceptions {
 
         if (!arguments.containsKey("-p"))
-            throw new SplitterExceptions(ExceptionTypes.WRONGARG);
+            throw new OperationExceptions(OperationExceptions.Type.WRONGARG);
 
         BlockInfo blockInfo = new BlockInfo();
         OpportunityChecker checker = new OpportunityChecker();
@@ -71,12 +70,13 @@ public class FileOperations {
             long count = blockInfo.parseSize(arguments.get("-c"));
             blockSize = fullSize / count;
             blockSize += fullSize % count == 0 ? 0 : 1;
-        } else throw new SplitterExceptions(ExceptionTypes.WRONGARG);
+        } else throw new OperationExceptions(OperationExceptions.Type.WRONGARG);
 
         if (checker.checkSize(blockSize, fullSize)) {
             statistic.clearAll();
 
             ExecutorService executorService = Executors.newCachedThreadPool();
+
             ArrayList<Future<String>> result = new ArrayList<>();
 
             for (int i = 0; i < blockInfo.getCount(blockSize, fullSize); i++) {
@@ -109,21 +109,23 @@ public class FileOperations {
                     executorService.shutdown();
                 }
             userInOut.write("Splitting complete, parts:" + blockInfo.getCount(blockSize, fullSize));
-            userInOut.write("Files name: " + sourceFileName + "Part" + "[" + String.format("%0" + blockInfo.getDimension(blockSize, fullSize) + "d-%0" + blockInfo.getDimension(blockSize, fullSize) + "d]", 1, blockInfo.getCount(blockSize, fullSize)));
+            userInOut.write("Files name: " + sourceFileName + "Part" + "[" + String.format("%0" +
+                    blockInfo.getDimension(blockSize, fullSize) + "d-%0" +
+                    blockInfo.getDimension(blockSize, fullSize) + "d]", 1, blockInfo.getCount(blockSize, fullSize)));
         }
     }
 
 
-    public void merge(Map<String, String> arguments) throws Exception {
+    public void merge(Map<String, String> arguments) throws OperationExceptions {
         if (!arguments.containsKey("-p"))
-            throw new SplitterExceptions(ExceptionTypes.WRONGARG);
+            throw new OperationExceptions(OperationExceptions.Type.WRONGARG);
 
         File sourceDirectory = new File(arguments.get("-p"));
         OpportunityChecker checker = new OpportunityChecker();
-        if (!checker.checkMergDir(sourceDirectory)) throw new SplitterExceptions(ExceptionTypes.NOTDIR);
+        if (!checker.checkMergDir(sourceDirectory)) throw new OperationExceptions(OperationExceptions.Type.NOTDIR);
         // TODO: 24.08.18 Сделать проверку агрумента, который будет или создавать новый файл или перезаписывать существующий
 
-        for (Map.Entry<String, Integer> pair : checker.getAvailableFilesForMarging(sourceDirectory, "Part").entrySet()) {
+        for (Map.Entry<String, Integer> pair : checker.getAvailableFilesForMarging(sourceDirectory).entrySet()) {
             int markIndex = pair.getKey().lastIndexOf(":");
             String fileName = pair.getKey().substring(0, markIndex);
             int dimension = Integer.parseInt(pair.getKey().substring(markIndex + 1));

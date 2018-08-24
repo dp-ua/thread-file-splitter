@@ -1,7 +1,7 @@
 package com.sysgears.filesplitter.file;
 
-import com.sysgears.filesplitter.Exception.ExceptionTypes;
-import com.sysgears.filesplitter.Exception.SplitterExceptions;
+
+import com.sysgears.filesplitter.file.operation.OperationExceptions;
 
 /**
  * Calculate all info about block of data.
@@ -49,7 +49,7 @@ public class BlockInfo {
      * @return long size of bytes
      * @throws NumberFormatException if cant parse input string
      */
-    public long parseSize(String blockSize) throws SplitterExceptions {
+    public long parseSize(String blockSize) throws OperationExceptions {
         long size;
         try {
             size = Long.parseLong(blockSize);
@@ -58,7 +58,7 @@ public class BlockInfo {
             try {
                 size = Long.parseLong(blockSize.substring(0, blockSize.length() - 1));
             } catch (NumberFormatException ee) {
-                throw new SplitterExceptions(ExceptionTypes.WRONGENTERBLOCK);
+                throw new OperationExceptions(OperationExceptions.Type.WRONGENTERBLOCK);
             }
         }
 
@@ -72,7 +72,7 @@ public class BlockInfo {
                 mult *= 1024;
                 break;
             default:
-                throw new SplitterExceptions(ExceptionTypes.WRONGENTERBLOCK);
+                throw new OperationExceptions(OperationExceptions.Type.WRONGENTERBLOCK);
         }
         return size * mult;
     }

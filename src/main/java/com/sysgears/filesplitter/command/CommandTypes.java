@@ -6,8 +6,6 @@ package com.sysgears.filesplitter.command;
 public enum CommandTypes {
     SPLIT("split files"),
     EXIT("exit"),
-    BLANK("empty string is entered"),
-    ERROR("wrong command"),
     THREADS("threads list"),
     MERGE("merger files"),
     ;

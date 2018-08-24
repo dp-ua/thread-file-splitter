@@ -1,8 +1,5 @@
 package com.sysgears.filesplitter.command;
 
-import com.sysgears.filesplitter.Exception.ExceptionTypes;
-import com.sysgears.filesplitter.Exception.SplitterExceptions;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,13 +42,13 @@ public class CommandParser {
      *
      * @return type of command in CommandTypes. If cant parsing command - return CommandTypes.ERROR
      */
-    public CommandTypes getCommand() {
-        if (args.length == 0) return CommandTypes.BLANK;
+    public CommandTypes getCommand() throws CommandExceptions {
+        if (args.length == 0) throw new CommandExceptions(CommandExceptions.Type.NULL);
 
         try {
             return CommandTypes.valueOf(args[0].toUpperCase());
         } catch (IllegalArgumentException e) {
-            return CommandTypes.ERROR;
+            throw new CommandExceptions(CommandExceptions.Type.WRONG);
         }
     }
 
@@ -59,15 +56,15 @@ public class CommandParser {
      * Get arguments from input string
      *
      * @return Map of arguments
-     * @throws SplitterExceptions if cant parse arguments
+     * @throws CommandExceptions if cant parse arguments
      */
-    public Map<String, String> getArguments() throws SplitterExceptions {
+    public Map<String, String> getArguments() throws CommandExceptions {
         Map<String, String> map = new HashMap<>();
-        if (args.length <= 1) throw new SplitterExceptions(ExceptionTypes.WRONGARG);
-        if ((args.length - 1) % 2 != 0) throw new SplitterExceptions(ExceptionTypes.WRONGARG);
+        if (args.length <= 1) throw new CommandExceptions(CommandExceptions.Type.WRONGARG);
+        if ((args.length - 1) % 2 != 0) throw new CommandExceptions(CommandExceptions.Type.WRONGARG);
 
         for (int i = 1; i < args.length; i = i + 2) {
-            if (args[i].charAt(0) != '-') throw new SplitterExceptions(ExceptionTypes.WRONGARG);
+            if (args[i].charAt(0) != '-') throw new CommandExceptions(CommandExceptions.Type.WRONGARG);
             map.put(args[i], args[i + 1]);
 
         }
