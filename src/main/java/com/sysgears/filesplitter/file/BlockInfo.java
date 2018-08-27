@@ -1,12 +1,10 @@
 package com.sysgears.filesplitter.file;
 
 
-import com.sysgears.filesplitter.file.operation.OperationExceptions;
+import com.sysgears.filesplitter.file.operation.exception.OperationExceptions;
 
 /**
  * Calculate all info about block of data.
- *
- *
  */
 public class BlockInfo {
 
@@ -45,6 +43,8 @@ public class BlockInfo {
 
     /**
      * Return size of block in bytes.
+     *
+     * The block size can be specified as either a simple size or with an alphabetic notation: G, M, K
      *
      * @return long size of bytes
      * @throws NumberFormatException if cant parse input string
