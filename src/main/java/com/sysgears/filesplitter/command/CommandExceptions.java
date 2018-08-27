@@ -1,5 +1,8 @@
 package com.sysgears.filesplitter.command;
 
+/**
+ * The types of exceptions that occur during the parsing of the passed command
+ */
 public class CommandExceptions extends Exception {
     enum Type {
         NULL("no command entered"),
@@ -14,6 +17,7 @@ public class CommandExceptions extends Exception {
     }
 
     private Type type;
+
     /**
      * Constructs a new exception with {@code null} as its detail message.
      * The cause is not initialized, and may subsequently be initialized by a

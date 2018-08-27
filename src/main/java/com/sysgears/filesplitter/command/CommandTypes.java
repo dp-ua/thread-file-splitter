@@ -1,13 +1,13 @@
 package com.sysgears.filesplitter.command;
 
 /**
- * List of available commands
+ * Available command types
  */
 public enum CommandTypes {
     SPLIT("split files"),
+    MERGE("merger files"),
     EXIT("exit"),
     THREADS("threads list"),
-    MERGE("merger files"),
     ;
     private String description;
 
