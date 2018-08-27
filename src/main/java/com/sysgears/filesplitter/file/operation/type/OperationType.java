@@ -1,9 +1,11 @@
-package com.sysgears.filesplitter.file.operation;
+package com.sysgears.filesplitter.file.operation.type;
 
+/**
+ * List of available operations
+ */
 public enum OperationType {
     SPLIT("split files"),
-    MERGE("merger files"),
-    ;
+    MERGE("merger files"),;
     private String description;
 
     OperationType(String description) {
