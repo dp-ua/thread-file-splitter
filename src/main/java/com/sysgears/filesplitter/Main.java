@@ -4,11 +4,12 @@ package com.sysgears.filesplitter;
 import com.sysgears.filesplitter.command.CommandExceptions;
 import com.sysgears.filesplitter.command.CommandParser;
 import com.sysgears.filesplitter.command.CommandTypes;
-import com.sysgears.filesplitter.file.executor.ExecutorPool;
+import com.sysgears.filesplitter.executor.AbstractExecutor;
+import com.sysgears.filesplitter.executor.CashedThreadPoolExecutor;
 import com.sysgears.filesplitter.file.operation.AbstractOperation;
-import com.sysgears.filesplitter.file.operation.OperationExceptions;
-import com.sysgears.filesplitter.file.operation.OperationType;
 import com.sysgears.filesplitter.file.operation.OperationsFactory;
+import com.sysgears.filesplitter.file.operation.exception.OperationExceptions;
+import com.sysgears.filesplitter.file.operation.type.OperationType;
 import com.sysgears.filesplitter.statistic.ConcurrentMapStatistic;
 import com.sysgears.filesplitter.statistic.StatisticViewer;
 import com.sysgears.filesplitter.statistic.TimeController;
@@ -33,7 +34,7 @@ merge -p /home/pavel/IdeaProjects/test
             ConsoleInOut consoleInOut = new ConsoleInOut();
             CommandParser commandParser = new CommandParser();
             Messages messages = new Messages(consoleInOut);
-
+            AbstractExecutor executor = new CashedThreadPoolExecutor();
 
             while (true) {
                 try {
@@ -42,8 +43,10 @@ merge -p /home/pavel/IdeaProjects/test
                     commandParser.setArgs(input);
 
                     if (commandParser.getCommand() == CommandTypes.EXIT) break;
-                    if (commandParser.getCommand() == CommandTypes.THREADS) {messages.showThreads();
-                    continue;}
+                    if (commandParser.getCommand() == CommandTypes.THREADS) {
+                        messages.showThreads();
+                        continue;
+                    }
 
 
                     TimeController timeController = new TimeController();
@@ -61,18 +64,16 @@ merge -p /home/pavel/IdeaProjects/test
 
                     ConcurrentMapStatistic statistic = new ConcurrentMapStatistic();
 
-                    Thread statisticDemon = new Thread(new StatisticViewer(timeController, statistic, consoleInOut));
-                    statisticDemon.setPriority(8);
-                    statisticDemon.setDaemon(true);
-                    statisticDemon.start();
+                    Thread statisticViwer = new Thread(new StatisticViewer(timeController, statistic, consoleInOut));
+                    statisticViwer.setPriority(8);
+                    statisticViwer.setDaemon(true);
+                    statisticViwer.start();
 
                     AbstractOperation operation = new OperationsFactory(consoleInOut, statistic).getOperation(type);
+                    executor.doTaskList(operation.getTaskMap(commandParser.getArguments()), statistic);
 
-                    ExecutorPool executorPool = new ExecutorPool(consoleInOut, statistic);
-                    executorPool.doTaskList(operation.getTaskMap(commandParser.getArguments()));
-
-                    statisticDemon.interrupt();
-                    statisticDemon.join();
+                    statisticViwer.interrupt();
+                    statisticViwer.join();
 
                     messages.showTimeRemanig(timeController.getRemainingInSec());
                 } catch (OperationExceptions | CommandExceptions e) {
