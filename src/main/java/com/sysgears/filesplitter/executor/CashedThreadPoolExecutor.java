@@ -1,4 +1,4 @@
-package com.sysgears.filesplitter.file.executor;
+package com.sysgears.filesplitter.executor;
 
 import com.sysgears.filesplitter.statistic.AbstractStatistic;
 import com.sysgears.filesplitter.user.UserInOut;
@@ -7,24 +7,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
-public class ExecutorPool {
+/**
+ * Implementation of an Abstract executor on the basis of a CachedThreadPool executor
+ */
+public class CashedThreadPoolExecutor implements AbstractExecutor{
 
-    /**
-     * user interface
-     */
-    private final UserInOut userInOut;
-
-    /**
-     * Statistic holder
-     */
-    private final AbstractStatistic statistic;
-
-    public ExecutorPool(UserInOut userInOut, AbstractStatistic statistic) {
-        this.userInOut = userInOut;
-        this.statistic = statistic;
+    public CashedThreadPoolExecutor() {
     }
 
-    public void doTaskList(List<Callable <String>> todoList) {
+    /**
+     * Accepts a list of tasks that must return their result as a string.
+     * Executes them and records the returned results of the work flows.
+     *
+     * @param todoList List of tasks that the result of the execution
+     *                 is returned in the form Callable<String>
+     * @param statistic A pointer to the statistics used.
+     */
+    public void doTaskList(List<Callable <String>> todoList, AbstractStatistic statistic) {
 
         ExecutorService executorService = Executors.newCachedThreadPool();
         ArrayList<Future<String>> result = new ArrayList<>();
@@ -38,7 +37,7 @@ public class ExecutorPool {
                 statistic.put(s[0], s[1]);
 
             } catch (InterruptedException | ExecutionException e) {
-                userInOut.write(e.getMessage());
+                e.printStackTrace();
             } finally {
                 executorService.shutdown();
             }
