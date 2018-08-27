@@ -1,28 +1,27 @@
 package com.sysgears.filesplitter.file;
 
-import com.sysgears.filesplitter.file.operation.OperationExceptions;
+import com.sysgears.filesplitter.file.operation.exception.OperationExceptions;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 
 /**
- * Checks the ability to separate the specified file according to the specified parameters
+ * Verification of the possibility of executing the desired operations on files
  */
 public class OpportunityChecker {
-    private final String markForPart="Part";
+    private String partDelimeter = "Part";
 
     /**
      * Checks the correctness of the source file
      * <p>
      * Verifies that the correct file name is specified,
      * that the file exists,
-     * that there is enough space on the disk to separate the file.
+     * that there is enough space on the disk to split the file.
      *
      * @param fileName source file name in String
      * @return source file name in File
      * @throws OperationExceptions if the specified file is not suitable
-     *                            for partitioning or not enough free disk space
+     *                             for partitioning or not enough free disk space
      */
     public File fileSuitable(String fileName) throws OperationExceptions {
         File file = new File(fileName);
@@ -46,29 +45,28 @@ public class OpportunityChecker {
     }
 
     /**
-     * Checking whether the transferred File is a directory and whether it has attached files
+     * Checking  the File is a directory and whether there are files in it
      *
      * @param file The transmitted File, which must be checked for compliance with the required parameters
-     * @return
+     * @return false if: File is not directory, File does not exist, does not contain other files
      */
     public boolean checkMergDir(File file) {
         if (!file.exists()) return false;
         if (!file.isDirectory()) return false;
-        Set<File> files = new TreeSet<>();
-        for (File f : file.listFiles()) {
-            if (f.isFile()) {
-                files.add(f);
-            }
+        boolean result;
+        try {
+            result = file.listFiles().length > 0;
+        } catch (NullPointerException e) {
+            result = false;
         }
-        if (files.size() == 0) return false;
-        return true;
+        return result;
     }
 
     /**
+     * Get  a Map of file names ready to be merged
      *
-     * @param dir
-     * @return
-     * @throws IOException
+     * @param dir Directory where we take the files to merge
+     * @return Map<String:   name ,   Integer:   number> key: name of file, value: number of parts of file
      */
     public Map<String, Integer> getAvailableFilesForMarging(File dir) {
         Map<String, Integer> result = new TreeMap<>();
@@ -78,7 +76,7 @@ public class OpportunityChecker {
         for (File f : dir.listFiles()) if (f.isFile()) fileNames.add(f.getName());
 
         for (String s : fileNames) {
-            int index = s.lastIndexOf(markForPart);
+            int index = s.lastIndexOf(partDelimeter);
             if (index == -1) continue;
             String fileName = s.substring(0, index);
             int count = s.length() - index - 4;
@@ -89,7 +87,7 @@ public class OpportunityChecker {
         for (Map.Entry<String, Integer> pair : new HashMap<>(result).entrySet()) {
             for (int i = 1; i <= pair.getValue(); i++) {
                 String name = pair.getKey().substring(0, pair.getKey().lastIndexOf(":"));
-                int count = 0;
+                int count;
                 try {
                     count = Integer.parseInt(pair.getKey().substring(pair.getKey().lastIndexOf(":") + 1));
                 } catch (NumberFormatException e) {
@@ -97,7 +95,7 @@ public class OpportunityChecker {
                     break;
                 }
 
-                if (!fileNames.contains(String.format("%s"+markForPart+"%0" + count + "d", name, count))) {
+                if (!fileNames.contains(String.format("%s" + partDelimeter + "%0" + count + "d", name, count))) {
                     result.remove(pair.getKey());
                     break;
                 }
