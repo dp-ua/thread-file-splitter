@@ -1,7 +1,9 @@
-package com.sysgears.filesplitter.file.operation;
+package com.sysgears.filesplitter.file.operation.type;
 
 import com.sysgears.filesplitter.file.OpportunityChecker;
-import com.sysgears.filesplitter.file.block.movers.BigBlockMover;
+import com.sysgears.filesplitter.file.data.copy.StreamDataCopying;
+import com.sysgears.filesplitter.file.operation.AbstractOperation;
+import com.sysgears.filesplitter.file.operation.exception.OperationExceptions;
 import com.sysgears.filesplitter.statistic.AbstractStatistic;
 import com.sysgears.filesplitter.user.UserInOut;
 
@@ -11,17 +13,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-
+/**
+ * The implementation of an abstract operation that performs merging file
+ */
 public class Merging implements AbstractOperation {
-
-    /**
-     * user interface
-     */
+    private String partDelimeter = "Part";
     private final UserInOut userInOut;
-
-    /**
-     * Statistic holder
-     */
     private final AbstractStatistic statistic;
 
     /**
@@ -35,6 +32,15 @@ public class Merging implements AbstractOperation {
         this.statistic = statistic;
     }
 
+    /**
+     * Get  a list of tasks, the result of which will be merge the source files into a one output file
+     *
+     * @param arguments -that determine which tasks will be listed
+     *                  - Arguments are specified in the form of a key, the value
+     * @return list of operations
+     * @throws OperationExceptions An exception related to checking for the availability of the source files,
+     *                             the possibility of merging.
+     */
     @Override
     public List<Callable<String>> getTaskMap(Map<String, String> arguments) throws OperationExceptions {
         if (!arguments.containsKey("-p"))
@@ -58,12 +64,12 @@ public class Merging implements AbstractOperation {
 
             long startPos = 0;
             for (int i = 1; i <= pair.getValue(); i++) {
-                File filePart = new File(sourceDirectory.toPath() + "/" + fileName + String.format("Part%0" + dimension + "d", i));
+                File filePart = new File(sourceDirectory.toPath() + "/" + fileName + String.format(partDelimeter + "%0" + dimension + "d", i));
                 String threadName = "Thread-" + i;
                 statistic.put(threadName, "start");
 
                 result.add(
-                        new BigBlockMover(
+                        new StreamDataCopying(
                                 filePart,
                                 outputFile,
                                 0,
@@ -73,10 +79,8 @@ public class Merging implements AbstractOperation {
                                 statistic));
                 startPos += filePart.length();
             }
-
         }
-        if (result.size()==0) throw new OperationExceptions(OperationExceptions.Type.NOPARTSFILE);
+        if (result.size() == 0) throw new OperationExceptions(OperationExceptions.Type.NOPARTSFILE);
         return result;
-
     }
 }
