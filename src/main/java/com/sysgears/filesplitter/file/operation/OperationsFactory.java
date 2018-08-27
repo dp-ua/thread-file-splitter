@@ -1,17 +1,17 @@
 package com.sysgears.filesplitter.file.operation;
 
+import com.sysgears.filesplitter.file.operation.type.Merging;
+import com.sysgears.filesplitter.file.operation.type.OperationType;
+import com.sysgears.filesplitter.file.operation.type.Splitting;
 import com.sysgears.filesplitter.statistic.AbstractStatistic;
 import com.sysgears.filesplitter.user.UserInOut;
 
+/**
+ * Factory operations. Defines which class will be responsible for performing the specified operation
+ */
 public class OperationsFactory {
-    /**
-     * user interface
-     */
-    private final UserInOut userInOut;
 
-    /**
-     * Statistic holder
-     */
+    private final UserInOut userInOut;
     private final AbstractStatistic statistic;
 
     /**
@@ -25,7 +25,12 @@ public class OperationsFactory {
         this.statistic = statistic;
     }
 
-
+    /**
+     * Get the implementation responsible for performing the required operation
+     *
+     * @param type of operation
+     * @return the necessary operation
+     */
     public AbstractOperation getOperation(OperationType type) {
         switch (type) {
             case SPLIT:
@@ -35,7 +40,5 @@ public class OperationsFactory {
             default:
                 return null;
         }
-
-
     }
 }
