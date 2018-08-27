@@ -35,13 +35,6 @@ public class Messages {
     }
 
     /**
-     * Show wrong message
-     */
-    public void showCommandWrong() {
-        userInOut.write("Command not recognized");
-    }
-
-    /**
      * Show error message
      *
      * @param msg error message
@@ -52,6 +45,7 @@ public class Messages {
 
     /**
      * Show remaning time
+     *
      * @param time in sec
      */
     public void showTimeRemanig(long time) {
