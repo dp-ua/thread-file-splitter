@@ -15,9 +15,14 @@ import com.sysgears.filesplitter.statistic.StatisticViewer;
 import com.sysgears.filesplitter.statistic.TimeController;
 import com.sysgears.filesplitter.user.ConsoleInOut;
 import com.sysgears.filesplitter.user.Messages;
+import com.sysgears.filesplitter.user.UserInOut;
+import org.apache.log4j.Logger;
+
+import static com.sysgears.filesplitter.file.operation.type.OperationType.SPLIT;
 
 
 public class Main {
+    private static final Logger log = Logger.getLogger(Main.class);
 
 /* строки для тестирования
 split -p /home/pavel/IdeaProjects/test/test3.file -s 600M
@@ -31,8 +36,9 @@ merge -p /home/pavel/IdeaProjects/test
 
     public static void main(String[] args) {
         try {
-            ConsoleInOut consoleInOut = new ConsoleInOut();
+            UserInOut consoleInOut = new ConsoleInOut();
             CommandParser commandParser = new CommandParser();
+
             Messages messages = new Messages(consoleInOut);
             AbstractExecutor executor = new CashedThreadPoolExecutor();
 
@@ -47,13 +53,11 @@ merge -p /home/pavel/IdeaProjects/test
                         messages.showThreads();
                         continue;
                     }
-
-
                     TimeController timeController = new TimeController();
                     OperationType type;
                     switch (commandParser.getCommand()) {
                         case SPLIT:
-                            type = OperationType.SPLIT;
+                            type = SPLIT;
                             break;
                         case MERGE:
                             type = OperationType.MERGE;
@@ -78,13 +82,14 @@ merge -p /home/pavel/IdeaProjects/test
                     messages.showTimeRemanig(timeController.getRemainingInSec());
                 } catch (OperationExceptions | CommandExceptions e) {
                     messages.showError(e.getMessage());
+                    log.info(e.getMessage());
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    log.error(e.getMessage(), e);
                 }
             }
         } catch (
                 Throwable e) {
-            e.printStackTrace();
+            log.fatal(e.getMessage(), e);
         }
     }
 }

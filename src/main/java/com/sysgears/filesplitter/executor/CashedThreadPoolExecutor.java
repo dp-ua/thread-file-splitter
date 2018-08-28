@@ -2,6 +2,7 @@ package com.sysgears.filesplitter.executor;
 
 import com.sysgears.filesplitter.statistic.AbstractStatistic;
 import com.sysgears.filesplitter.user.UserInOut;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.concurrent.*;
  * Implementation of an Abstract executor on the basis of a CachedThreadPool executor
  */
 public class CashedThreadPoolExecutor implements AbstractExecutor{
+    private final Logger log = Logger.getLogger(CashedThreadPoolExecutor.class);
 
     public CashedThreadPoolExecutor() {
     }
@@ -24,7 +26,7 @@ public class CashedThreadPoolExecutor implements AbstractExecutor{
      * @param statistic A pointer to the statistics used.
      */
     public void doTaskList(List<Callable <String>> todoList, AbstractStatistic statistic) {
-
+        log.debug("Start Pool with "+todoList.size()+" tasks");
         ExecutorService executorService = Executors.newCachedThreadPool();
         ArrayList<Future<String>> result = new ArrayList<>();
 
@@ -41,6 +43,6 @@ public class CashedThreadPoolExecutor implements AbstractExecutor{
             } finally {
                 executorService.shutdown();
             }
-
+        log.debug("Shutdown Pool with "+todoList.size()+" tasks");
     }
 }

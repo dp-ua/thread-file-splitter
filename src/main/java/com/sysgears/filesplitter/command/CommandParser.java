@@ -1,5 +1,7 @@
 package com.sysgears.filesplitter.command;
 
+import org.apache.log4j.Logger;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,6 +9,7 @@ import java.util.Map;
  * Parser for input String line
  */
 public class CommandParser {
+    private final Logger log = Logger.getLogger(CommandParser.class);
 
     private String[] args;
 
@@ -41,6 +44,7 @@ public class CommandParser {
         try {
             return CommandTypes.valueOf(args[0].toUpperCase());
         } catch (IllegalArgumentException e) {
+            log.info("Wrong command ", e);
             throw new CommandExceptions(CommandExceptions.Type.WRONG);
         }
     }

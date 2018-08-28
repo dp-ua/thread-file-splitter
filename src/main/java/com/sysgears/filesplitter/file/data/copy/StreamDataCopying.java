@@ -1,6 +1,7 @@
 package com.sysgears.filesplitter.file.data.copy;
 
 import com.sysgears.filesplitter.statistic.AbstractStatistic;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,6 +16,7 @@ import java.util.concurrent.Callable;
  * It can be used both for dividing a file into parts and for collecting a file into one whole
  */
 public class StreamDataCopying implements Callable<String> {
+    private final Logger log = Logger.getLogger(StreamDataCopying.class);
     private int blockSize = 1024;
 
     private final AbstractStatistic statistic;
@@ -57,6 +59,14 @@ public class StreamDataCopying implements Callable<String> {
      *                   If something went wrong - an exception will be thrown.
      */
     public String call() throws Exception {
+        log.debug("Start new Thread: " + threadName +
+                " sourceFile:" + sourceFile.toPath() +
+                " startPosInSource:" + startPosInSource +
+                " size:" + size +
+                "\noutputFile:" + outputFile.toPath() +
+                " startPosInOutput:" + startPosInOutput
+                );
+
         statistic.put(threadName, "start");
 
         FileChannel inputChannel = new FileInputStream(sourceFile).getChannel();
