@@ -1,9 +1,9 @@
-package com.sysgears.filesplitter.file.operation.exception;
+package com.sysgears.filesplitter.file.operation;
 
 /**
  * Exceptions that occur during the execution of copy operations.
  */
-public class OperationExceptions extends Exception {
+public class OperationException extends Exception {
     public enum Type {
         NOFILE("file does not exist"),
         WRONGNAME("wrong file name"),
@@ -13,7 +13,10 @@ public class OperationExceptions extends Exception {
         WRONGARG("arguments are set incorrectly"),
         NOTDIR("wrong directory specified"),
         NOPARTSFILE("no files found for the merging in the specified directory"),
-        NOSPLITT("error while parsing block. No File splitting");
+        NOSPLITT("error while parsing block. No File splitting"),
+        SMALLBLOCKERR("error while copying data"),
+        MAINBLOCKERR("error while copying data"),
+        ;
         private String desc;
 
         Type(String desc) {
@@ -28,7 +31,7 @@ public class OperationExceptions extends Exception {
      * The cause is not initialized, and may subsequently be initialized by a
      * call to {@link #initCause}.
      */
-    public OperationExceptions(Type type) {
+    public OperationException(Type type) {
         this.type = type;
     }
 

@@ -3,7 +3,7 @@ package com.sysgears.filesplitter.command;
 /**
  * Available command types
  */
-public enum CommandTypes {
+public enum CommandType {
     SPLIT("split files"),
     MERGE("merger files"),
     EXIT("exit"),
@@ -11,7 +11,7 @@ public enum CommandTypes {
     ;
     private String description;
 
-    CommandTypes(String description) {
+    CommandType(String description) {
         this.description = description;
     }
 }

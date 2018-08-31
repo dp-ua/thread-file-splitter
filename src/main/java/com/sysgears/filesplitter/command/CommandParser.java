@@ -2,6 +2,7 @@ package com.sysgears.filesplitter.command;
 
 import org.apache.log4j.Logger;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,15 +38,18 @@ public class CommandParser {
      * By default, the command must be specified by the first element in the argument list.
      * All that goes further is the arguments of the team.
      *
-     * @return type of command in CommandTypes. If cant parsing command - return CommandTypes.ERROR
+     * @return type of command in CommandType. If cant parsing command - return CommandType.ERROR
      */
-    public CommandTypes getCommand() throws CommandExceptions {
-        if (args.length == 0) throw new CommandExceptions(CommandExceptions.Type.NULL);
+    public CommandType getCommand() throws CommandException {
+        log.debug("Try to parse command: " + this.toString());
+        if (args.length == 0) throw new CommandException(CommandException.Type.NULL);
         try {
-            return CommandTypes.valueOf(args[0].toUpperCase());
+            CommandType result = CommandType.valueOf(args[0].toUpperCase());
+            log.debug("Command successfully parsed: " + result.toString());
+            return result;
         } catch (IllegalArgumentException e) {
-            log.info("Wrong command ", e);
-            throw new CommandExceptions(CommandExceptions.Type.WRONG);
+            log.debug("Wrong command entered ");
+            throw new CommandException(CommandException.Type.WRONG);
         }
     }
 
@@ -57,19 +61,31 @@ public class CommandParser {
      * Always go together, separated by a space.
      *
      * @return Returns a Map of arguments <String: key>,<String: value>
-     * @throws CommandExceptions arguments are not specified,
-     *                           the number of arguments is not even
-     *                           keys must begin with a "-"
+     * @throws CommandException arguments are not specified,
+     *                          the number of arguments is not even
+     *                          keys must begin with a "-"
      */
-    public Map<String, String> getArguments() throws CommandExceptions {
+    public Map<String, String> getArguments() throws CommandException {
         Map<String, String> map = new HashMap<>();
-        if (args.length <= 1) throw new CommandExceptions(CommandExceptions.Type.WRONGARG);
-        if ((args.length - 1) % 2 != 0) throw new CommandExceptions(CommandExceptions.Type.WRONGARG);
+        try {
+            if (args.length <= 1) throw new CommandException(CommandException.Type.WRONGARG);
+            if ((args.length - 1) % 2 != 0) throw new CommandException(CommandException.Type.WRONGARG);
 
-        for (int i = 1; i < args.length; i = i + 2) {
-            if (args[i].charAt(0) != '-') throw new CommandExceptions(CommandExceptions.Type.WRONGARG);
-            map.put(args[i], args[i + 1]);
+            for (int i = 1; i < args.length; i = i + 2) {
+                if (args[i].charAt(0) != '-') throw new CommandException(CommandException.Type.WRONGARG);
+                map.put(args[i], args[i + 1]);
+            }
+        } catch (CommandException e) {
+            log.debug(e.getMessage());
+            throw e;
         }
         return map;
+    }
+
+    @Override
+    public String toString() {
+        return "CommandParser{" +
+                "args=" + Arrays.toString(args) +
+                '}';
     }
 }

@@ -1,4 +1,4 @@
-package com.sysgears.filesplitter.statistic;
+package com.sysgears.filesplitter;
 
 import java.util.Map;
 
@@ -38,4 +38,16 @@ public interface AbstractStatistic {
      * Clear map
      */
     void clearAll();
-}
+
+    /**
+     * Send a signal that the statistics can be interrupted
+     */
+    void interupt();
+
+    /**
+     * Check if a signal was sent that the monitoring of statistics can be interrupted
+     *
+     * @return true if flag set true
+     */
+    boolean isInterupt();
+    }

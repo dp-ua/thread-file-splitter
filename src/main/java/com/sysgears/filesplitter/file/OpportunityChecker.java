@@ -1,6 +1,6 @@
 package com.sysgears.filesplitter.file;
 
-import com.sysgears.filesplitter.file.operation.exception.OperationExceptions;
+import com.sysgears.filesplitter.file.operation.OperationException;
 
 import java.io.File;
 import java.util.*;
@@ -20,14 +20,14 @@ public class OpportunityChecker {
      *
      * @param fileName source file name in String
      * @return source file name in File
-     * @throws OperationExceptions if the specified file is not suitable
+     * @throws OperationException if the specified file is not suitable
      *                             for partitioning or not enough free disk space
      */
-    public File fileSuitable(String fileName) throws OperationExceptions {
+    public File fileSuitable(String fileName) throws OperationException {
         File file = new File(fileName);
-        if (!file.exists()) throw new OperationExceptions(OperationExceptions.Type.NOFILE);
-        if (file.isDirectory()) throw new OperationExceptions(OperationExceptions.Type.WRONGNAME);
-        if (file.length() > file.getFreeSpace()) throw new OperationExceptions(OperationExceptions.Type.NOSPACE);
+        if (!file.exists()) throw new OperationException(OperationException.Type.NOFILE);
+        if (file.isDirectory()) throw new OperationException(OperationException.Type.WRONGNAME);
+        if (file.length() > file.getFreeSpace()) throw new OperationException(OperationException.Type.NOSPACE);
         return file;
     }
 
@@ -37,10 +37,10 @@ public class OpportunityChecker {
      * @param blockSize  size of block data
      * @param fullLength full size of data
      * @return true if the block size is less than the whole data packet
-     * @throws OperationExceptions if the block size is larger fullLength
+     * @throws OperationException if the block size is larger fullLength
      */
-    public boolean checkSize(long blockSize, long fullLength) throws OperationExceptions {
-        if (blockSize >= fullLength) throw new OperationExceptions(OperationExceptions.Type.WRONGBLOCKSIZE);
+    public boolean checkSize(long blockSize, long fullLength) throws OperationException {
+        if (blockSize >= fullLength) throw new OperationException(OperationException.Type.WRONGBLOCKSIZE);
         return true;
     }
 

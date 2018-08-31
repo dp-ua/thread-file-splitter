@@ -1,5 +1,8 @@
 package com.sysgears.filesplitter.file.data.copy;
 
+import com.sysgears.filesplitter.file.operation.OperationException;
+import org.apache.log4j.Logger;
+
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -8,7 +11,8 @@ import java.nio.channels.FileChannel;
 /**
  * Moves a block of the specified size from one file to another
  */
-public class SmallBlockCopying {
+public class SmallBlockCopier {
+    private final Logger log = Logger.getLogger(SmallBlockCopier.class);
 
     /**
      * Copies part of the content from the source data channel and places it in the  file
@@ -30,12 +34,20 @@ public class SmallBlockCopying {
      *                   All other unplanned exceptions are discarded.
      */
     public int move(FileChannel source, long startSourse, int size, File outputFile, long startOutput) throws Exception {
-        FileChannel distanation = new RandomAccessFile(outputFile, "rw").getChannel();
-        ByteBuffer buff = ByteBuffer.allocate(size);
-        source.read(buff, startSourse);
-        ByteBuffer wbuff = ByteBuffer.wrap(buff.array());
-        int written = distanation.write(wbuff, startOutput);
-        distanation.close();
+        int written = 0;
+
+        try {
+            FileChannel distanation = new RandomAccessFile(outputFile, "rw").getChannel();
+            ByteBuffer buff = ByteBuffer.allocate(size);
+            source.read(buff, startSourse);
+            ByteBuffer wbuff = ByteBuffer.wrap(buff.array());
+            written = distanation.write(wbuff, startOutput);
+            distanation.close();
+
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new OperationException(OperationException.Type.SMALLBLOCKERR);
+        }
         return written;
     }
 }

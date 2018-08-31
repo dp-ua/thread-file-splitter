@@ -1,6 +1,9 @@
 package com.sysgears.filesplitter.statistic;
 
+import com.sysgears.filesplitter.AbstractStatistic;
+import com.sysgears.filesplitter.TimeController;
 import com.sysgears.filesplitter.user.UserInOut;
+import org.apache.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +20,8 @@ import java.util.Map;
  * @see UserInOut
  */
 public class StatisticViewer implements Runnable {
+    private static final Logger log = Logger.getLogger(StatisticViewer.class);
+
     private final long updateTime = 1000;
     private final Map<String, Integer> progressWords;
     {
@@ -55,10 +60,12 @@ public class StatisticViewer implements Runnable {
      * word "done" - process has completed the task
      */
     public void run() {
+        log.debug("Start statistic demon: "+ this.toString());
         while (true) {
             try {
                 Thread.sleep(updateTime);
-                if (Thread.interrupted()) return;
+                if (Thread.interrupted() | statistic.isInterupt() ) throw new InterruptedException(Thread.currentThread().getName() + " interrupted");
+
                 Map<String, String> map = statistic.getAll();
 
                 int progress = 0;
@@ -101,6 +108,8 @@ public class StatisticViewer implements Runnable {
 
                 Thread.yield();
             } catch (InterruptedException e) {
+                statistic.interupt();
+                log.debug("Interrupted statistic demon: "+ this.toString());
                 return;
             }
         }

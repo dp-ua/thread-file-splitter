@@ -1,7 +1,7 @@
 package com.sysgears.filesplitter.executor;
 
-import com.sysgears.filesplitter.statistic.AbstractStatistic;
-import com.sysgears.filesplitter.user.UserInOut;
+import com.sysgears.filesplitter.AbstractStatistic;
+import com.sysgears.filesplitter.file.operation.OperationException;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ public class CashedThreadPoolExecutor implements AbstractExecutor{
      *                 is returned in the form Callable<String>
      * @param statistic A pointer to the statistics used.
      */
-    public void doTaskList(List<Callable <String>> todoList, AbstractStatistic statistic) {
+    public void doTaskList(List<Callable <String>> todoList, AbstractStatistic statistic) throws Exception{
         log.debug("Start Pool with "+todoList.size()+" tasks");
         ExecutorService executorService = Executors.newCachedThreadPool();
         ArrayList<Future<String>> result = new ArrayList<>();
@@ -39,8 +39,11 @@ public class CashedThreadPoolExecutor implements AbstractExecutor{
                 statistic.put(s[0], s[1]);
 
             } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+                statistic.interupt();
+                log.error(e.getMessage(),e);
+                throw new OperationException(OperationException.Type.MAINBLOCKERR);
             } finally {
+            statistic.interupt();
                 executorService.shutdown();
             }
         log.debug("Shutdown Pool with "+todoList.size()+" tasks");

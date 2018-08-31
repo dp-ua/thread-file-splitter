@@ -1,6 +1,6 @@
 package com.sysgears.filesplitter.file.data.copy;
 
-import com.sysgears.filesplitter.statistic.AbstractStatistic;
+import com.sysgears.filesplitter.AbstractStatistic;
 import org.apache.log4j.Logger;
 
 import java.io.File;
@@ -15,8 +15,8 @@ import java.util.concurrent.Callable;
  * Displays information about the flow progress in the name of the thread
  * It can be used both for dividing a file into parts and for collecting a file into one whole
  */
-public class StreamDataCopying implements Callable<String> {
-    private final Logger log = Logger.getLogger(StreamDataCopying.class);
+public class MainDataCopier implements Callable<String> {
+    private final Logger log = Logger.getLogger(MainDataCopier.class);
     private int blockSize = 1024;
 
     private final AbstractStatistic statistic;
@@ -37,7 +37,7 @@ public class StreamDataCopying implements Callable<String> {
      * @param threadName       - thread name
      * @param statistic        - statistic holder
      */
-    public StreamDataCopying(File sourceFile, File outputFile, long startPosInSource, long startPosInOutput, long size, String threadName, AbstractStatistic statistic) {
+    public MainDataCopier(File sourceFile, File outputFile, long startPosInSource, long startPosInOutput, long size, String threadName, AbstractStatistic statistic) {
         this.sourceFile = sourceFile;
         this.startPosInSource = startPosInSource;
         this.startPosInOutput = startPosInOutput;
@@ -59,42 +59,51 @@ public class StreamDataCopying implements Callable<String> {
      *                   If something went wrong - an exception will be thrown.
      */
     public String call() throws Exception {
-        log.debug("Start new Thread: " + threadName +
-                " sourceFile:" + sourceFile.toPath() +
-                " startPosInSource:" + startPosInSource +
-                " size:" + size +
-                "\noutputFile:" + outputFile.toPath() +
-                " startPosInOutput:" + startPosInOutput
-                );
 
-        statistic.put(threadName, "start");
+        try {
+            log.debug("Start new Thread: " + threadName +
+                    "\nsourceFile:" + sourceFile.toPath() +
+                    " startPosInSource:" + startPosInSource +
+                    " size:" + size +
+                    "\noutputFile:" + outputFile.toPath() +
+                    " startPosInOutput:" + startPosInOutput
+            );
 
-        FileChannel inputChannel = new FileInputStream(sourceFile).getChannel();
-        if (startPosInSource >= inputChannel.size())
-            throw new IllegalArgumentException("Start positions is out of file");
-        statistic.put(threadName, "0");
+            statistic.put(threadName, "start");
 
-        long posInSource = startPosInSource;
-        long posInOutput = startPosInOutput;
-        long workSize = (startPosInSource + size) > inputChannel.size() ? inputChannel.size() - startPosInSource - 1 : size;
-        long done = 0;
+            FileChannel inputChannel = new FileInputStream(sourceFile).getChannel();
+            if (startPosInSource >= inputChannel.size()) {
+                log.warn("Start positions is out of file");
+                throw new IllegalArgumentException("Start positions is out of file");
+            }
+            statistic.put(threadName, "0");
 
-        SmallBlockCopying smallBlockCopying = new SmallBlockCopying();
+            long posInSource = startPosInSource;
+            long posInOutput = startPosInOutput;
+            long workSize = (startPosInSource + size) > inputChannel.size() ? inputChannel.size() - startPosInSource - 1 : size;
+            long done = 0;
 
-        while (workSize > 0) {
-            int tempSize = workSize < blockSize ? (int) workSize : blockSize;
-            int written = smallBlockCopying.move(inputChannel, posInSource, tempSize, outputFile, posInOutput);
-            done += written;
-            statistic.put(threadName, String.valueOf((long) (((double) done / size) * 100)));
-            posInSource += tempSize;
-            posInOutput += tempSize;
-            workSize -= tempSize;
-            Thread.yield();
+            SmallBlockCopier smallBlockCopier = new SmallBlockCopier();
+            while (workSize > 0) {
+                int tempSize = workSize < blockSize ? (int) workSize : blockSize;
+                int written = smallBlockCopier.move(inputChannel, posInSource, tempSize, outputFile, posInOutput);
+                done += written;
+                statistic.put(threadName, String.valueOf((long) (((double) done / size) * 100)));
+                posInSource += tempSize;
+                posInOutput += tempSize;
+                workSize -= tempSize;
+                Thread.yield();
+            }
+            inputChannel.close();
+        } catch (Exception e) {
+            statistic.interupt();
+            log.error(e.getMessage(), e);
+            throw e;
         }
-        inputChannel.close();
         statistic.put(threadName, "100");
+        log.debug("Stop Thread: " + threadName);
         return threadName + ":done";
-    }
 
+    }
 
 }

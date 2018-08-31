@@ -3,7 +3,7 @@ package com.sysgears.filesplitter.command;
 /**
  * The types of exceptions that occur during the parsing of the passed command
  */
-public class CommandExceptions extends Exception {
+public class CommandException extends Exception {
     enum Type {
         NULL("no command entered"),
         WRONG("wrong command entered"),
@@ -23,7 +23,7 @@ public class CommandExceptions extends Exception {
      * The cause is not initialized, and may subsequently be initialized by a
      * call to {@link #initCause}.
      */
-    public CommandExceptions(Type type) {
+    public CommandException(Type type) {
         this.type=type;
     }
 

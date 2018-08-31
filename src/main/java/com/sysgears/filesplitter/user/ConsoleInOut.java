@@ -28,6 +28,4 @@ public class ConsoleInOut implements UserInOut {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         return reader.readLine();
     }
-
-
 }

@@ -1,5 +1,6 @@
-package com.sysgears.filesplitter.statistic;
+package com.sysgears.filesplitter;
 
+import org.apache.log4j.Logger;
 import java.util.Calendar;
 
 /**

@@ -1,4 +1,4 @@
-package com.sysgears.filesplitter.file.operation.type;
+package com.sysgears.filesplitter.file.operation;
 
 /**
  * List of available operations

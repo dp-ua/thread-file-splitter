@@ -1,4 +1,6 @@
-package com.sysgears.filesplitter.statistic;
+package com.sysgears.filesplitter;
+
+import org.apache.log4j.Logger;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -8,6 +10,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * Implementation of statistics based on ConcurrentHashMap
  */
 public class ConcurrentMapStatistic implements AbstractStatistic {
+    private final Logger log = Logger.getLogger(ConcurrentMapStatistic.class);
+    private volatile boolean interupt=false;
 
     /**
      * Map for holding statistic
@@ -53,5 +57,14 @@ public class ConcurrentMapStatistic implements AbstractStatistic {
      */
     public void clearAll() {
         map.clear();
+    }
+
+    @Override
+    public void interupt() {
+        interupt=true;
+    }
+
+    public boolean isInterupt() {
+        return interupt;
     }
 }
