@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ConcurrentMapStatistic implements AbstractStatistic {
     private final Logger log = Logger.getLogger(ConcurrentMapStatistic.class);
-    private volatile boolean interupt = false;
 
     /**
      * Map for holding statistic
