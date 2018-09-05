@@ -23,13 +23,8 @@ public class CommandParser {
      */
     public void setArgs(String input) {
         if (input == null) input = "";
+        log.trace("Accept string: " + input);
         this.args = input.split(" ");
-    }
-
-    /**
-     * Blank constructor
-     */
-    public CommandParser() {
     }
 
     /**
@@ -45,10 +40,10 @@ public class CommandParser {
         if (args.length == 0) throw new CommandException(CommandException.Type.NULL);
         try {
             CommandType result = CommandType.valueOf(args[0].toUpperCase());
-            log.debug("Command successfully parsed: " + result.toString());
+            log.info("Command successfully parsed: " + result.toString());
             return result;
         } catch (IllegalArgumentException e) {
-            log.debug("Wrong command entered ");
+            log.info("Wrong command entered ");
             throw new CommandException(CommandException.Type.WRONG);
         }
     }
@@ -79,6 +74,7 @@ public class CommandParser {
             log.debug(e.getMessage());
             throw e;
         }
+        log.info("The arguments are verified. Everything is fine");
         return map;
     }
 
