@@ -3,7 +3,7 @@ package com.sysgears.filesplitter.file;
 import com.sysgears.filesplitter.file.operation.OperationException;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
 
 public class uBlockInfoTest {
 

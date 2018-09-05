@@ -1,14 +1,15 @@
 package com.sysgears.filesplitter.command;
 
-import java.io.File;
+import org.testng.annotations.Test;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
 
-public class uCommandParserTest {
+public class CommandParserTest {
 
-    @org.testng.annotations.Test
+    @Test
     public void commandParseTestSplit() throws CommandException {
         CommandParser commandParser = new CommandParser();
         commandParser.setArgs("split");
@@ -16,7 +17,7 @@ public class uCommandParserTest {
 
     }
 
-    @org.testng.annotations.Test
+    @Test
     public void commandParseArgumentsTest() throws CommandException {
         CommandParser commandParser = new CommandParser();
         commandParser.setArgs("split -p file/file");
@@ -25,7 +26,7 @@ public class uCommandParserTest {
         assertEquals(commandParser.getArguments(),map);
 }
 
-    @org.testng.annotations.Test (expectedExceptions = CommandException.class)
+    @Test (expectedExceptions = CommandException.class)
     public void commandParseError() throws CommandException {
         CommandParser commandParser = new CommandParser();
         commandParser.setArgs("splet -p file/file");

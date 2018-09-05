@@ -5,11 +5,24 @@
     <parent>
         <artifactId>file-splitter</artifactId>
         <groupId>com.sysgears.filesplitter</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>${pr.version}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>main</artifactId>
-
+    <dependencies>
+        <dependency>
+            <groupId>com.sysgears.filesplitter</groupId>
+            <artifactId>statistic</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.6</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
 </project>

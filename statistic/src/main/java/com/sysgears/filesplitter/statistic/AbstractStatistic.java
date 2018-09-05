@@ -3,22 +3,21 @@ package com.sysgears.filesplitter.statistic;
 import java.util.Map;
 
 /**
- * Asbract statistics.
- * <p>
- * Information about methods for working with statistics
+ * Statistic API.
  */
 public interface AbstractStatistic {
+
     /**
      * Get all elements
      *
-     * @return Map<String       ,       String>
+     * @return Map<String , String>
      * key - name of thread
      * value - progress
      */
     Map<String, String> getAll();
 
     /**
-     * Put some record to map
+     * Put some record to statistic
      *
      * @param key   name of thread
      * @param value progress
@@ -35,7 +34,7 @@ public interface AbstractStatistic {
     String get(String key);
 
     /**
-     * Clear map
+     * Clear statistic
      */
     void clearAll();
 }

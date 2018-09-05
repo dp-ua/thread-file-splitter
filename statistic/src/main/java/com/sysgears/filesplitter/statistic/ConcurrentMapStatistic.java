@@ -36,7 +36,7 @@ public class ConcurrentMapStatistic implements AbstractStatistic {
     public boolean put(String key, String value) {
         int size = map.size();
         map.put(key, value);
-        return (size > map.size());
+        return (size < map.size());
     }
 
     /**

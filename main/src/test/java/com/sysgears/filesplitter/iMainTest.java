@@ -2,11 +2,12 @@ package com.sysgears.filesplitter;
 
 import com.sysgears.filesplitter.command.CommandParser;
 import com.sysgears.filesplitter.executor.AbstractExecutor;
-import com.sysgears.filesplitter.executor.CashedThreadPoolExecutor;
-import com.sysgears.filesplitter.file.data.copy.SmallBlockCopier;
+import com.sysgears.filesplitter.executor.ExecutorType;
+import com.sysgears.filesplitter.executor.ThreadExecutor;
 import com.sysgears.filesplitter.file.operation.AbstractOperation;
 import com.sysgears.filesplitter.file.operation.Merging;
 import com.sysgears.filesplitter.file.operation.Splitting;
+import com.sysgears.filesplitter.statistic.ConcurrentMapStatistic;
 import com.sysgears.filesplitter.user.ConsoleInOut;
 import com.sysgears.filesplitter.user.UserInOut;
 import org.apache.commons.io.FileUtils;
@@ -16,7 +17,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -50,8 +50,6 @@ public class iMainTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
     }
 
     @AfterClass
@@ -81,7 +79,7 @@ public class iMainTest {
         UserInOut userInOut = new ConsoleInOut();
 
         AbstractOperation operation;
-        AbstractExecutor executor = new CashedThreadPoolExecutor();;
+        AbstractExecutor executor = new ThreadExecutor(ExecutorType.Type.FIXED);;
 
         operation = new Splitting(userInOut, statistic);
 

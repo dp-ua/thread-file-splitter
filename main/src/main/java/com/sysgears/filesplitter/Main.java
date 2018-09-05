@@ -4,12 +4,15 @@ import com.sysgears.filesplitter.command.CommandException;
 import com.sysgears.filesplitter.command.CommandParser;
 import com.sysgears.filesplitter.command.CommandType;
 import com.sysgears.filesplitter.executor.AbstractExecutor;
-import com.sysgears.filesplitter.executor.CashedThreadPoolExecutor;
+import com.sysgears.filesplitter.executor.ExecutorType;
+import com.sysgears.filesplitter.executor.ThreadExecutor;
 import com.sysgears.filesplitter.file.operation.AbstractOperation;
 import com.sysgears.filesplitter.file.operation.OperationException;
 import com.sysgears.filesplitter.file.operation.OperationType;
 import com.sysgears.filesplitter.file.operation.OperationsFactory;
+import com.sysgears.filesplitter.statistic.ConcurrentMapStatistic;
 import com.sysgears.filesplitter.statistic.StatisticViewer;
+import com.sysgears.filesplitter.statistic.TimeController;
 import com.sysgears.filesplitter.user.ConsoleInOut;
 import com.sysgears.filesplitter.user.Messages;
 import com.sysgears.filesplitter.user.UserInOut;
@@ -38,7 +41,9 @@ merge -p /home/pavel/IdeaProjects/test
             CommandType commandType;
 
             Messages messages = new Messages(userInOut);
-            AbstractExecutor executor = new CashedThreadPoolExecutor();
+            AbstractExecutor executor = new ThreadExecutor(ExecutorType.Type.FIXED);
+
+            Thread statisticViwer = null;
 
             while (true) {
                 try {
@@ -69,12 +74,13 @@ merge -p /home/pavel/IdeaProjects/test
 
                     ConcurrentMapStatistic statistic = new ConcurrentMapStatistic();
 
-                    Thread statisticViwer = new Thread(new StatisticViewer(timeController, statistic, userInOut));
+                    AbstractOperation operation = new OperationsFactory(userInOut, statistic).getOperation(type);
+
+                    statisticViwer = new Thread(new StatisticViewer(timeController, statistic, userInOut));
                     statisticViwer.setPriority(8);
                     statisticViwer.setDaemon(true);
                     statisticViwer.start();
 
-                    AbstractOperation operation = new OperationsFactory(userInOut, statistic).getOperation(type);
                     executor.doTaskList(operation.getTaskMap(commandArgs), statistic);
 
                     statisticViwer.interrupt();
@@ -82,10 +88,13 @@ merge -p /home/pavel/IdeaProjects/test
 
                     messages.showTimeRemanig(timeController.getRemainingInSec());
                 } catch (OperationException | CommandException e) {
+                    log.info(e.getMessage());
                     messages.showError(e.getMessage());
                 } catch (Exception e) {
                     messages.showError(e.getMessage());
                     log.error(e.getMessage(), e);
+                } finally {
+                    if (statisticViwer != null) statisticViwer.interrupt();
                 }
             }
         } catch (Throwable e) {
