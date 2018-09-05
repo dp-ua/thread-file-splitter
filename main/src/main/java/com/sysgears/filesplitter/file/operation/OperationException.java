@@ -7,6 +7,7 @@ public class OperationException extends Exception {
     public enum Type {
         NOFILE("file does not exist"),
         WRONGNAME("wrong file name"),
+        WRONGOPERATION("wrong operation"),
         NOSPACE("not enough free disk space"),
         WRONGBLOCKSIZE("split is not possible. the block size exceeds the file size"),
         WRONGENTERBLOCK("block size is incorrect"),
