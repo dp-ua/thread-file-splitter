@@ -1,4 +1,4 @@
-package com.sysgears.filesplitter;
+package com.sysgears.filesplitter.statistic;
 
 import java.util.Map;
 
@@ -11,7 +11,7 @@ public interface AbstractStatistic {
     /**
      * Get all elements
      *
-     * @return Map<String   ,   String>
+     * @return Map<String       ,       String>
      * key - name of thread
      * value - progress
      */
@@ -20,7 +20,7 @@ public interface AbstractStatistic {
     /**
      * Put some record to map
      *
-     * @param key name of thread
+     * @param key   name of thread
      * @param value progress
      * @return true if operation was successful
      */
@@ -38,16 +38,4 @@ public interface AbstractStatistic {
      * Clear map
      */
     void clearAll();
-
-    /**
-     * Send a signal that the statistics can be interrupted
-     */
-    void interupt();
-
-    /**
-     * Check if a signal was sent that the monitoring of statistics can be interrupted
-     *
-     * @return true if flag set true
-     */
-    boolean isInterupt();
-    }
+}

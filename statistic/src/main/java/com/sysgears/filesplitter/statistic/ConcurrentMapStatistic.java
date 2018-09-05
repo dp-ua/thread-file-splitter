@@ -1,4 +1,4 @@
-package com.sysgears.filesplitter;
+package com.sysgears.filesplitter.statistic;
 
 import org.apache.log4j.Logger;
 
@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ConcurrentMapStatistic implements AbstractStatistic {
     private final Logger log = Logger.getLogger(ConcurrentMapStatistic.class);
-    private volatile boolean interupt=false;
+    private volatile boolean interupt = false;
 
     /**
      * Map for holding statistic
@@ -43,13 +43,12 @@ public class ConcurrentMapStatistic implements AbstractStatistic {
     /**
      * Get value by key
      *
-     * @param key name of thread
+     * @param key name of thread. If key = null - return null
      * @return value. If key is not contains - returm null
      */
     public String get(String key) {
-        if (map.containsKey(key)) return map.get(key);
-        return null;
-
+        if (key == null) return null;
+        return map.get(key);
     }
 
     /**
@@ -57,14 +56,5 @@ public class ConcurrentMapStatistic implements AbstractStatistic {
      */
     public void clearAll() {
         map.clear();
-    }
-
-    @Override
-    public void interupt() {
-        interupt=true;
-    }
-
-    public boolean isInterupt() {
-        return interupt;
     }
 }
