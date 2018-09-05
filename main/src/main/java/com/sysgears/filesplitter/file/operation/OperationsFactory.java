@@ -1,6 +1,6 @@
 package com.sysgears.filesplitter.file.operation;
 
-import com.sysgears.filesplitter.AbstractStatistic;
+import com.sysgears.filesplitter.statistic.AbstractStatistic;
 import com.sysgears.filesplitter.user.UserInOut;
 import org.apache.log4j.Logger;
 
@@ -30,19 +30,18 @@ public class OperationsFactory {
      * @param type of operation
      * @return the necessary operation
      */
-    public AbstractOperation getOperation(OperationType type) {
+    public AbstractOperation getOperation(OperationType type) throws OperationException {
         log.debug("Factory tries to detect operation by type: " + type.toString());
         switch (type) {
             case SPLIT:
-                log.debug("Factory returns Splitting operation");
+                log.info("Factory returns Splitting operation");
                 return new Splitting(userInOut, statistic);
             case MERGE:
-                log.debug("Factory returns Merging operation");
+                log.info("Factory returns Merging operation");
                 return new Merging(userInOut, statistic);
             default:
-                log.debug("The factory did not find the necessary operation");
-                statistic.interupt();
-                return null;
+                log.warn("Wrong operation type");
+                throw new OperationException(OperationException.Type.WRONGOPERATION);
         }
     }
 }
