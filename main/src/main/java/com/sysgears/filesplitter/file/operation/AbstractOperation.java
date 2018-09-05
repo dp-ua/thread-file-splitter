@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 /**
- * Abstract operations for working with specified arguments
+ * Abstract operations for working with specified list of arguments
  */
 public interface AbstractOperation {
 
