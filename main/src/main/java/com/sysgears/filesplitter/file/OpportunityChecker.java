@@ -21,7 +21,7 @@ public class OpportunityChecker {
      * @param fileName source file name in String
      * @return source file name in File
      * @throws OperationException if the specified file is not suitable
-     *                             for partitioning or not enough free disk space
+     *                            for partitioning or not enough free disk space
      */
     public File fileSuitable(String fileName) throws OperationException {
         File file = new File(fileName);
@@ -63,12 +63,12 @@ public class OpportunityChecker {
     }
 
     /**
-     * Get  a Map of file names ready to be merged
+     * Get  a Map of file names ready to merging
      *
      * @param dir Directory where we take the files to merge
-     * @return Map<String:   name ,   Integer:   number> key: name of file, value: number of parts of file
+     * @return Map<String:       name   ,       Integer:       number> key: name of file, value: number of parts of file
      */
-    public Map<String, Integer> getAvailableFilesForMarging(File dir) {
+    public Map<String, Integer> getAvailableFilesForMarging(File dir) throws OperationException {
         Map<String, Integer> result = new TreeMap<>();
 
         Set<String> fileNames = new TreeSet<>();
@@ -102,6 +102,12 @@ public class OpportunityChecker {
             }
 
         }
+        long mergeSize = 0;
+        for (Map.Entry<String, Integer> pair : result.entrySet()) {
+            File f = new File(pair.getKey());
+            mergeSize += f.length();
+        }
+        if (mergeSize > dir.getFreeSpace()) throw new OperationException(OperationException.Type.NOSPACE);
         return result;
     }
 }
