@@ -1,6 +1,6 @@
 package com.sysgears.filesplitter.file.data.copy;
 
-import com.sysgears.filesplitter.AbstractStatistic;
+import com.sysgears.filesplitter.statistic.AbstractStatistic;
 import org.apache.log4j.Logger;
 
 import java.io.File;
@@ -60,8 +60,10 @@ public class MainDataCopier implements Callable<String> {
      */
     public String call() throws Exception {
 
+        long done = 0;
         try {
-            log.debug("Start new Thread: " + threadName +
+            log.info("Start new Thread: " + threadName);
+            if (log.isTraceEnabled()) log.trace(threadName +
                     "\nsourceFile:" + sourceFile.toPath() +
                     " startPosInSource:" + startPosInSource +
                     " size:" + size +
@@ -71,9 +73,16 @@ public class MainDataCopier implements Callable<String> {
 
             statistic.put(threadName, "start");
 
+
             FileChannel inputChannel = new FileInputStream(sourceFile).getChannel();
             if (startPosInSource >= inputChannel.size()) {
-                log.warn("Start positions is out of file");
+                log.error("Start positions is out of file");
+                log.error(threadName +
+                        "\nsourceFile:" + sourceFile.toPath() +
+                        " startPosInSource:" + startPosInSource +
+                        " size:" + size +
+                        "\noutputFile:" + outputFile.toPath() +
+                        " startPosInOutput:" + startPosInOutput);
                 throw new IllegalArgumentException("Start positions is out of file");
             }
             statistic.put(threadName, "0");
@@ -81,9 +90,11 @@ public class MainDataCopier implements Callable<String> {
             long posInSource = startPosInSource;
             long posInOutput = startPosInOutput;
             long workSize = (startPosInSource + size) > inputChannel.size() ? inputChannel.size() - startPosInSource - 1 : size;
-            long done = 0;
 
             SmallBlockCopier smallBlockCopier = new SmallBlockCopier();
+
+            log.debug("count of smallblocks:"+workSize/blockSize);
+
             while (workSize > 0) {
                 int tempSize = workSize < blockSize ? (int) workSize : blockSize;
                 int written = smallBlockCopier.move(inputChannel, posInSource, tempSize, outputFile, posInOutput);
@@ -96,12 +107,11 @@ public class MainDataCopier implements Callable<String> {
             }
             inputChannel.close();
         } catch (Exception e) {
-            statistic.interupt();
             log.error(e.getMessage(), e);
             throw e;
         }
         statistic.put(threadName, "100");
-        log.debug("Stop Thread: " + threadName);
+        log.info("Thread ended fine: " + threadName + "Writen: " + done);
         return threadName + ":done";
 
     }
