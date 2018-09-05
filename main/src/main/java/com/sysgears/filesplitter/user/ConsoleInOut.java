@@ -1,5 +1,7 @@
 package com.sysgears.filesplitter.user;
 
+import org.apache.log4j.Logger;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -8,6 +10,7 @@ import java.io.InputStreamReader;
  * Communicating with the user via the console
  */
 public class ConsoleInOut implements UserInOut {
+    private static final Logger log = Logger.getLogger(ConsoleInOut.class);
 
     /**
      * Write message to console
@@ -16,6 +19,7 @@ public class ConsoleInOut implements UserInOut {
      */
     public void write(String message) {
         System.out.println(message);
+        log.debug("Message to user: " + message);
     }
 
     /**
@@ -26,6 +30,8 @@ public class ConsoleInOut implements UserInOut {
      */
     public String read() throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-        return reader.readLine();
+        String readln = reader.readLine();
+        log.debug("Message from user: " + readln);
+        return readln;
     }
 }

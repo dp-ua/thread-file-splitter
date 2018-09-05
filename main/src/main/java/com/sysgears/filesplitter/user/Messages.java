@@ -1,8 +1,6 @@
 package com.sysgears.filesplitter.user;
 
 
-import com.sysgears.filesplitter.user.UserInOut;
-
 /**
  * Show messages for user
  */
