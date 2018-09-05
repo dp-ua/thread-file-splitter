@@ -1,9 +1,9 @@
 package com.sysgears.filesplitter.file.operation;
 
-import com.sysgears.filesplitter.AbstractStatistic;
 import com.sysgears.filesplitter.file.BlockInfo;
 import com.sysgears.filesplitter.file.OpportunityChecker;
 import com.sysgears.filesplitter.file.data.copy.MainDataCopier;
+import com.sysgears.filesplitter.statistic.AbstractStatistic;
 import com.sysgears.filesplitter.user.UserInOut;
 import org.apache.log4j.Logger;
 
@@ -40,14 +40,17 @@ public class Splitting implements AbstractOperation {
      *                  - Arguments are specified in the form of a key, the value
      * @return list of operations
      * @throws OperationException An exception related to checking for the availability of the source file,
-     *                             the possibility of separation.
+     *                            the possibility of separation.
      */
     @Override
     public List<Callable<String>> getTaskMap(Map<String, String> arguments) throws OperationException {
+        log.info("Start splitting operation");
         List<Callable<String>> result = new ArrayList<>();
         try {
-            if (!arguments.containsKey("-p")) throw new OperationException(OperationException.Type.WRONGARG);
-
+            if (!arguments.containsKey("-p")) {
+                log.info("Error splitting operation. Not file specified");
+                throw new OperationException(OperationException.Type.WRONGARG);
+            }
             String sourceFileName = arguments.get("-p");
             BlockInfo blockInfo = new BlockInfo();
             OpportunityChecker checker = new OpportunityChecker();
@@ -61,8 +64,13 @@ public class Splitting implements AbstractOperation {
                 long count = blockInfo.parseSize(arguments.get("-c"));
                 blockSize = fullSize / count;
                 blockSize += fullSize % count == 0 ? 0 : 1;
-            } else throw new OperationException(OperationException.Type.WRONGARG);
-
+            } else {
+                log.info("Error splitting operation. not specified number of parts");
+                throw new OperationException(OperationException.Type.WRONGARG);
+            }
+            log.debug("Splitting file to: " + sourceFileName + partDelimeter + "[" + String.format("%0" +
+                    blockInfo.getDimension(blockSize, fullSize) + "d-%0" +
+                    blockInfo.getDimension(blockSize, fullSize) + "d]", 1, blockInfo.getCount(blockSize, fullSize)));
 
             userInOut.write("Splitting file to: " + sourceFileName + partDelimeter + "[" + String.format("%0" +
                     blockInfo.getDimension(blockSize, fullSize) + "d-%0" +
@@ -80,6 +88,13 @@ public class Splitting implements AbstractOperation {
                     File outputFile = new File(sourceFileName + partDelimeter + partName);
                     if (outputFile.exists()) outputFile.delete();
 
+                    if (log.isTraceEnabled()) log.trace(
+                            "Put " + threadName + " task in list: \n" +
+                                    sourceFile.toPath() + " to " + outputFile.getName() + "\n" +
+                                    "startPos in source file: " + blockSize*i +
+                                    " size: " + blockSize
+                    );
+
                     result.add(new MainDataCopier(
                             sourceFile,
                             outputFile,
@@ -92,10 +107,10 @@ public class Splitting implements AbstractOperation {
             }
             if (result.size() == 0) throw new OperationException(OperationException.Type.NOSPLITT);
         } catch (Exception e) {
-            statistic.interupt();
             log.debug(e.getMessage());
             throw e;
         }
+        log.info("Add " + result.size() + " tasks to list");
         return result;
     }
 }
