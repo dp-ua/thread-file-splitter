@@ -1,19 +1,17 @@
 package com.sysgears.filesplitter.executor;
 
-import com.sysgears.filesplitter.AbstractStatistic;
+import com.sysgears.filesplitter.statistic.AbstractStatistic;
 
 import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
- * Abstract pool executor
+ * Abstract executor
  */
 public interface AbstractExecutor {
 
     /**
-     * Takes a list of tasks that implement Callable interface and return the result in String
-     *
-     * Processes the task list and returns the result to the statistics
+     * Do some operations with List of tasks. Put result of operations to statistic
      *
      * @param todoList  list of Callable<String> tasks
      * @param statistic Statistic holder
