@@ -31,16 +31,13 @@ public class OperationsFactory {
      * @return the necessary operation
      */
     public AbstractOperation getOperation(OperationType type) throws OperationException {
-        log.debug("Factory tries to detect operation by type: " + type.toString());
         switch (type) {
             case SPLIT:
-                log.info("Factory returns Splitting operation");
-                return new Splitting(userInOut, statistic);
+        return new Splitting(userInOut, statistic);
             case MERGE:
-                log.info("Factory returns Merging operation");
-                return new Merging(userInOut, statistic);
+        return new Merging(userInOut, statistic);
             default:
-                log.warn("Wrong operation type");
+                log.error("Wrong operation type" + type);
                 throw new OperationException(OperationException.Type.WRONGOPERATION);
         }
     }

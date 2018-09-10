@@ -23,7 +23,6 @@ public class CommandParser {
      */
     public void setArgs(String input) {
         if (input == null) input = "";
-        log.trace("Accept string: " + input);
         this.args = input.split(" ");
     }
 
@@ -40,10 +39,10 @@ public class CommandParser {
         if (args.length == 0) throw new CommandException(CommandException.Type.NULL);
         try {
             CommandType result = CommandType.valueOf(args[0].toUpperCase());
-            log.info("Command successfully parsed: " + result.toString());
+            log.info("Command successfully parsed: " + result.toString() + " " + this.toString());
             return result;
         } catch (IllegalArgumentException e) {
-            log.info("Wrong command entered ");
+            log.info("Wrong command entered: " + this.toString());
             throw new CommandException(CommandException.Type.WRONG);
         }
     }
@@ -63,18 +62,27 @@ public class CommandParser {
     public Map<String, String> getArguments() throws CommandException {
         Map<String, String> map = new HashMap<>();
         try {
-            if (args.length <= 1) throw new CommandException(CommandException.Type.WRONGARG);
-            if ((args.length - 1) % 2 != 0) throw new CommandException(CommandException.Type.WRONGARG);
+            if (args.length <= 1) {
+                log.error("Error: wrong arguments: "+ this.toString() );
+                throw new CommandException(CommandException.Type.WRONGARG);
+            }
+            if ((args.length - 1) % 2 != 0) {
+                log.error("Error: wrong arguments: "+ this.toString() );
+                throw new CommandException(CommandException.Type.WRONGARG);
+            }
 
             for (int i = 1; i < args.length; i = i + 2) {
-                if (args[i].charAt(0) != '-') throw new CommandException(CommandException.Type.WRONGARG);
+                if (args[i].charAt(0) != '-') {
+                    log.error("Error: wrong arguments: "+ this.toString() );
+                    throw new CommandException(CommandException.Type.WRONGARG);
+                }
                 map.put(args[i], args[i + 1]);
             }
         } catch (CommandException e) {
             log.debug(e.getMessage());
             throw e;
         }
-        log.info("The arguments are verified. Everything is fine");
+
         return map;
     }
 

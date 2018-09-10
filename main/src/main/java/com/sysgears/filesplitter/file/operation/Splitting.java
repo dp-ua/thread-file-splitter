@@ -18,9 +18,11 @@ import java.util.concurrent.Callable;
  */
 public class Splitting implements AbstractOperation {
     private static final Logger log = Logger.getLogger(Splitting.class);
-    private String partDelimeter = "Part";
+    private String PART = "Part";
     private final UserInOut userInOut;
     private final AbstractStatistic statistic;
+    private final BlockInfo blockInfo = new BlockInfo();
+    private final OpportunityChecker checker = new OpportunityChecker();
 
     /**
      * Set user interface and statistic holder
@@ -44,16 +46,19 @@ public class Splitting implements AbstractOperation {
      */
     @Override
     public List<Callable<String>> getTaskMap(Map<String, String> arguments) throws OperationException {
-        log.info("Start splitting operation");
+        String infoAboutThread = " Splitting("+this.hashCode()+ "-" + System.currentTimeMillis()+"): ";
+        for (Map.Entry<String,String> pair: arguments.entrySet()             ) {
+            infoAboutThread+=" key:[" + pair.getKey() + "] value:[" + pair.getValue() +"]"; }
+
+        log.info("Start. Try to get tasks. " + infoAboutThread);
         List<Callable<String>> result = new ArrayList<>();
         try {
             if (!arguments.containsKey("-p")) {
-                log.info("Error splitting operation. Not file specified");
+                log.error("Error: Not file specified. "+ infoAboutThread);
                 throw new OperationException(OperationException.Type.WRONGARG);
             }
             String sourceFileName = arguments.get("-p");
-            BlockInfo blockInfo = new BlockInfo();
-            OpportunityChecker checker = new OpportunityChecker();
+
             File sourceFile = checker.fileSuitable(sourceFileName);
 
             long blockSize;
@@ -65,14 +70,14 @@ public class Splitting implements AbstractOperation {
                 blockSize = fullSize / count;
                 blockSize += fullSize % count == 0 ? 0 : 1;
             } else {
-                log.info("Error splitting operation. not specified number of parts");
+                log.error("Error: Not specified number of parts. "+ infoAboutThread);
                 throw new OperationException(OperationException.Type.WRONGARG);
             }
-            log.debug("Splitting file to: " + sourceFileName + partDelimeter + "[" + String.format("%0" +
+            log.debug("Splitting file to: " + sourceFileName + PART + "[" + String.format("%0" +
                     blockInfo.getDimension(blockSize, fullSize) + "d-%0" +
-                    blockInfo.getDimension(blockSize, fullSize) + "d]", 1, blockInfo.getCount(blockSize, fullSize)));
+                    blockInfo.getDimension(blockSize, fullSize) + "d]", 1, blockInfo.getCount(blockSize, fullSize)) + infoAboutThread);
 
-            userInOut.write("Splitting file to: " + sourceFileName + partDelimeter + "[" + String.format("%0" +
+            userInOut.write("Splitting file to: " + sourceFileName + PART + "[" + String.format("%0" +
                     blockInfo.getDimension(blockSize, fullSize) + "d-%0" +
                     blockInfo.getDimension(blockSize, fullSize) + "d]", 1, blockInfo.getCount(blockSize, fullSize)));
 
@@ -85,14 +90,14 @@ public class Splitting implements AbstractOperation {
                     String threadName = "Thread-" + partName;
                     statistic.put(threadName, "start");
 
-                    File outputFile = new File(sourceFileName + partDelimeter + partName);
+                    File outputFile = new File(sourceFileName + PART + partName);
                     if (outputFile.exists()) outputFile.delete();
 
                     if (log.isTraceEnabled()) log.trace(
                             "Put " + threadName + " task in list: \n" +
                                     sourceFile.toPath() + " to " + outputFile.getName() + "\n" +
                                     "startPos in source file: " + blockSize*i +
-                                    " size: " + blockSize
+                                    " size: " + blockSize + infoAboutThread
                     );
 
                     result.add(new MainDataCopier(
@@ -107,10 +112,10 @@ public class Splitting implements AbstractOperation {
             }
             if (result.size() == 0) throw new OperationException(OperationException.Type.NOSPLITT);
         } catch (Exception e) {
-            log.debug(e.getMessage());
+            log.error("Error: " + e.getMessage() + " " + infoAboutThread);
             throw e;
         }
-        log.info("Add " + result.size() + " tasks to list");
+        log.info("Done. Get " + result.size() + " tasks(" + result.hashCode()+"). " + infoAboutThread );
         return result;
     }
 }

@@ -31,7 +31,8 @@ public class ThreadExecutor implements AbstractExecutor {
      * @param statistic Statistic handler
      */
     public void doTaskList(List<Callable<String>> todoList, AbstractStatistic statistic) throws Exception {
-        log.info("Start Pool with " + todoList.size() + " tasks");
+        String tasks =  " TaskList:(" + todoList.hashCode();
+        log.info("Start Pool with " + todoList.size() +" tasks." + tasks);
         if (log.isTraceEnabled()) log.trace("Pool type: " + type);
         ExecutorService executorService = new ExecutorType().getExecutorService(type);
         ArrayList<Future<String>> result = new ArrayList<>();
@@ -43,14 +44,14 @@ public class ThreadExecutor implements AbstractExecutor {
             try {
                 String[] s = fs.get().split(":");
                 statistic.put(s[0], s[1]);
-                if (log.isTraceEnabled()) log.trace("Task " + s[0] + " ended. result: " + s[1]);
+                if (log.isTraceEnabled()) log.trace("Task " + s[0] + " ended. result: " + s[1] + tasks);
             } catch (InterruptedException | ExecutionException e) {
                 log.error(e.getMessage(), e);
                 error = true;
             } finally {
                 executorService.shutdown();
             }
-        log.info("Shutdown Pool with " + todoList.size() + " tasks");
+        log.info("Shutdown Pool with " + todoList.size()+" tasks." +tasks);
         if (error) throw new OperationException(OperationException.Type.MAINBLOCKERR);
 
     }

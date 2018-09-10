@@ -20,16 +20,17 @@ import java.util.Map;
 public class StatisticViewer implements Runnable {
     private static final Logger log = Logger.getLogger(StatisticViewer.class);
 
-    private final long updateTime = 1000;
-    private final Map<String, Integer> progressWords;
+    private final long UPDATETIME = 1000;
+    private final String NAME = String.valueOf(this.hashCode()) + "-" + System.currentTimeMillis();
+    private final Map<String, Integer> PROGRESSWORDS;
 
     {
-        progressWords = new HashMap<>();
-        progressWords.put("done", 100);
-        progressWords.put("start", 0);
+        PROGRESSWORDS = new HashMap<>();
+        PROGRESSWORDS.put("done", 100);
+        PROGRESSWORDS.put("start", 0);
     }
 
-    private final int displayType = 1;
+    private final int DISPLAYTYPE = 1;
     private final TimeController timeController;
     private final AbstractStatistic statistic;
     private final UserInOut userInOut;
@@ -55,14 +56,18 @@ public class StatisticViewer implements Runnable {
      * Gets information about the progress of all the processes listed in the map
      * Information about the progress of statistics can contain several states:
      * number from 0 to 100 - percentage of completion
-     * word "start" - the process started, but it has not started yet
+     * word "start" - the thread started, but has not yet received data for work
      * word "done" - process has completed the task
      */
     public void run() {
-        log.info("Start statistic demon: " + this.toString());
+        String infoAboutThread = "Name: " + Thread.currentThread().getName() + "(" + NAME + ")" +
+                " updateTime: " + UPDATETIME +
+                " statisticHolder: " + statistic.hashCode()+ "-" + System.currentTimeMillis();
+
+        log.info("Start statistic demon: " + infoAboutThread + " ");
         while (true) {
             try {
-                Thread.sleep(updateTime);
+                Thread.sleep(UPDATETIME);
                 if (Thread.interrupted())
                     throw new InterruptedException(Thread.currentThread().getName() + " interrupted");
 
@@ -74,7 +79,7 @@ public class StatisticViewer implements Runnable {
                 for (Map.Entry<String, String> pair : map.entrySet()) {
                     int threadProgress;
 
-                    if (progressWords.containsKey(pair.getValue())) threadProgress = progressWords.get(pair.getValue());
+                    if (PROGRESSWORDS.containsKey(pair.getValue())) threadProgress = PROGRESSWORDS.get(pair.getValue());
                     else try {
                         threadProgress = Integer.parseInt(pair.getValue());
                     } catch (Exception e) {
@@ -103,12 +108,16 @@ public class StatisticViewer implements Runnable {
                 }
                 progressBar.append("]");
 
-                if (displayType == 1) userInOut.write("Total:" + progress + "%, " + out.toString());
-                if (displayType == 2) userInOut.write(progressBar.toString());
+                if (DISPLAYTYPE == 1) userInOut.write("Total:" + progress + "%, " + out.toString());
+                else if (DISPLAYTYPE == 2) userInOut.write(progressBar.toString());
+                else {
+                    userInOut.write("Total:" + progress + "%, " + out.toString());
+                    userInOut.write(progressBar.toString());
+                }
 
                 Thread.yield();
             } catch (InterruptedException e) {
-                log.info("Interrupted statistic demon: " + this.toString().substring(this.toString().lastIndexOf(".") + 1));
+                log.info("Interrupted statistic demon: " + infoAboutThread);
                 return;
             }
         }

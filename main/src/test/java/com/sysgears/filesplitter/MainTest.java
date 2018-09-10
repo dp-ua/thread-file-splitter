@@ -24,7 +24,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-public class iMainTest {
+public class MainTest {
     String path = System.getProperty("user.dir");
     File dir = new File(path + "/testMain");
     File testFile = new File(dir.toPath() + "/testFile");

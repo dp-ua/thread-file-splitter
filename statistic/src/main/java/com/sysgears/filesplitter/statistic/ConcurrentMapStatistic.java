@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ConcurrentMapStatistic implements AbstractStatistic {
     private final Logger log = Logger.getLogger(ConcurrentMapStatistic.class);
+    private final String MAPNAME="ConcHashMap"+this.hashCode();
 
     /**
      * Map for holding statistic
@@ -23,6 +24,8 @@ public class ConcurrentMapStatistic implements AbstractStatistic {
      * @return TreeMap of all values.
      */
     public Map<String, String> getAll() {
+        log.trace("Return from map(" + MAPNAME + ") " + map.size() + " vaules");
+
         return new TreeMap<>(map);
     }
 
@@ -34,6 +37,7 @@ public class ConcurrentMapStatistic implements AbstractStatistic {
      * @return Returns the true if the operation was successful
      */
     public boolean put(String key, String value) {
+        log.trace("Put in map(" + MAPNAME + ") key:" + key + " value:" + value);
         int size = map.size();
         map.put(key, value);
         return (size < map.size());
@@ -46,14 +50,16 @@ public class ConcurrentMapStatistic implements AbstractStatistic {
      * @return value. If key is not contains - returm null
      */
     public String get(String key) {
-        if (key == null) return null;
-        return map.get(key);
+        log.trace("Requested from map(" + MAPNAME + ") by key:" + key == null ? "null" : key);
+        return key == null ? null : map.get(key);
     }
 
     /**
      * Clear statistic map
      */
     public void clearAll() {
+
+        log.trace("Clearing map(" + MAPNAME + ")" );
         map.clear();
     }
 }

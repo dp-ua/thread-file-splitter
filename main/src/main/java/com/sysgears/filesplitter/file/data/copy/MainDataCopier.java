@@ -17,7 +17,7 @@ import java.util.concurrent.Callable;
  */
 public class MainDataCopier implements Callable<String> {
     private final Logger log = Logger.getLogger(MainDataCopier.class);
-    private int blockSize = 1024;
+    private final int BLOCKSIZE = 1024;
 
     private final AbstractStatistic statistic;
     private final File sourceFile;
@@ -26,6 +26,7 @@ public class MainDataCopier implements Callable<String> {
     private final long startPosInOutput;
     private final long size;
     private final String threadName;
+    private final SmallBlockCopier smallBlockCopier;
 
     /**
      * Set basic params for work with statistic
@@ -45,6 +46,7 @@ public class MainDataCopier implements Callable<String> {
         this.threadName = threadName;
         this.outputFile = outputFile;
         this.statistic = statistic;
+        smallBlockCopier = new SmallBlockCopier();
     }
 
     /**
@@ -60,29 +62,22 @@ public class MainDataCopier implements Callable<String> {
      */
     public String call() throws Exception {
 
+        String infoAboutThread = threadName + "(" + this.hashCode() + "-" + System.currentTimeMillis() + ")" +
+                " sourceFile:" + sourceFile.toPath() +
+                " startPosInSource:" + startPosInSource +
+                " size:" + size +
+                " outputFile:" + outputFile.toPath() +
+                " startPosInOutput:" + startPosInOutput +
+                " fixedBlockSize: " + BLOCKSIZE;
+
         long done = 0;
         try {
-            log.info("Start new Thread: " + threadName);
-            if (log.isTraceEnabled()) log.trace(threadName +
-                    "\nsourceFile:" + sourceFile.toPath() +
-                    " startPosInSource:" + startPosInSource +
-                    " size:" + size +
-                    "\noutputFile:" + outputFile.toPath() +
-                    " startPosInOutput:" + startPosInOutput
-            );
-
+            log.info("Start new Thread: " + infoAboutThread);
             statistic.put(threadName, "start");
-
 
             FileChannel inputChannel = new FileInputStream(sourceFile).getChannel();
             if (startPosInSource >= inputChannel.size()) {
-                log.error("Start positions is out of file");
-                log.error(threadName +
-                        "\nsourceFile:" + sourceFile.toPath() +
-                        " startPosInSource:" + startPosInSource +
-                        " size:" + size +
-                        "\noutputFile:" + outputFile.toPath() +
-                        " startPosInOutput:" + startPosInOutput);
+                log.error("Start positions is out of file. " + infoAboutThread);
                 throw new IllegalArgumentException("Start positions is out of file");
             }
             statistic.put(threadName, "0");
@@ -91,27 +86,26 @@ public class MainDataCopier implements Callable<String> {
             long posInOutput = startPosInOutput;
             long workSize = (startPosInSource + size) > inputChannel.size() ? inputChannel.size() - startPosInSource - 1 : size;
 
-            SmallBlockCopier smallBlockCopier = new SmallBlockCopier();
-
-            log.debug("count of smallblocks:"+workSize/blockSize);
+            log.debug("Try to perform [" + workSize / BLOCKSIZE + "]" + " smallblocks tasks" + infoAboutThread);
 
             while (workSize > 0) {
-                int tempSize = workSize < blockSize ? (int) workSize : blockSize;
+                int tempSize = workSize < BLOCKSIZE ? (int) workSize : BLOCKSIZE;
                 int written = smallBlockCopier.move(inputChannel, posInSource, tempSize, outputFile, posInOutput);
                 done += written;
                 statistic.put(threadName, String.valueOf((long) (((double) done / size) * 100)));
                 posInSource += tempSize;
                 posInOutput += tempSize;
                 workSize -= tempSize;
-                Thread.yield();
+
+
             }
             inputChannel.close();
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error(threadName + "(" + this.hashCode() + ") " + e.getMessage(), e);
             throw e;
         }
         statistic.put(threadName, "100");
-        log.info("Thread ended fine: " + threadName + "Writen: " + done);
+        log.info("Done. Writen: " + done + "b" + infoAboutThread);
         return threadName + ":done";
 
     }

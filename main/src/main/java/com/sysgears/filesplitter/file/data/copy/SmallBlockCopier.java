@@ -34,8 +34,14 @@ public class SmallBlockCopier {
      *                   All other unplanned exceptions are discarded.
      */
     public int move(FileChannel source, long startSourse, int size, File outputFile, long startOutput) throws Exception {
+        String infoAboutThread = " Source: " + source.toString() +
+                " startSourse: " + startSourse +
+                " size: " + size +
+                " outputFile: " + outputFile.toPath() +
+                " startOutput: " + startOutput;
         int written = 0;
 
+        if (log.isTraceEnabled()) log.trace(infoAboutThread);
         try {
             FileChannel distanation = new RandomAccessFile(outputFile, "rw").getChannel();
             ByteBuffer buff = ByteBuffer.allocate(size);
@@ -45,7 +51,7 @@ public class SmallBlockCopier {
             distanation.close();
 
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error(e.getMessage() + infoAboutThread, e);
             throw new OperationException(OperationException.Type.SMALLBLOCKERR);
         }
         return written;

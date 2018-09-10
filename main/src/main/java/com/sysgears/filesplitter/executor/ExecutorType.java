@@ -14,12 +14,12 @@ public class ExecutorType {
     /**
      * The multiplier associated with the number of processors
      */
-    private final int poolMultiplier = 1;
+    private final int POOLRATIO = 1;
 
     /**
      * Number of processors
      */
-    private final int coresNumber = 4;
+    private final int CORES = Runtime.getRuntime().availableProcessors();
 
     /**
      * Types of Available Pools
@@ -37,12 +37,12 @@ public class ExecutorType {
     public ExecutorService getExecutorService(Type type) {
         if (log.isTraceEnabled()) log.trace(
                 "type: " + type +
-                "poolMultiplier: " + poolMultiplier +
-                " coresNumber:" + coresNumber);
+                "POOLRATIO: " + POOLRATIO +
+                " CORES:" + CORES);
         switch (type) {
             case FIXED:
-                log.debug("Fixed pool select. coresNumber:" + coresNumber + "threads count: " + coresNumber * poolMultiplier);
-                return Executors.newFixedThreadPool(coresNumber * poolMultiplier);
+                log.debug("Fixed pool select. Avaliable cores: " + CORES + " ratio: " + POOLRATIO);
+                return Executors.newFixedThreadPool(CORES * POOLRATIO);
             case CASHED:
                 log.debug("Cached pool selected");
                 return Executors.newCachedThreadPool();

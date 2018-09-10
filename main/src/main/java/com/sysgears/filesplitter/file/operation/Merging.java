@@ -17,9 +17,10 @@ import java.util.concurrent.Callable;
  */
 public class Merging implements AbstractOperation {
     private static final Logger log = Logger.getLogger(Merging.class);
-    private String partDelimeter = "Part";
+    private String PART = "Part";
     private final UserInOut userInOut;
     private final AbstractStatistic statistic;
+    private final OpportunityChecker checker = new OpportunityChecker();
 
     /**
      * Set user interface and statistic holder
@@ -43,33 +44,38 @@ public class Merging implements AbstractOperation {
      */
     @Override
     public List<Callable<String>> getTaskMap(Map<String, String> arguments) throws OperationException {
-        log.info("Start merging operation");
+        String infoAboutThread = " Merging(" + this.hashCode() + "-" + System.currentTimeMillis() + "): ";
+        for (Map.Entry<String, String> pair : arguments.entrySet()) {
+            infoAboutThread += " key:[" + pair.getKey() + "] value:[" + pair.getValue() + "]";
+        }
+        log.info("Start. Try to get tasks. " + infoAboutThread);
+
         List<Callable<String>> result = new ArrayList<>();
         try {
             if (!arguments.containsKey("-p")) {
-                log.info("Error merging operation. Wrong arguments");
+                log.error("Error: Wrong Arguments. " + infoAboutThread);
                 throw new OperationException(OperationException.Type.WRONGARG);
             }
             File sourceDirectory = new File(arguments.get("-p"));
-            if (log.isTraceEnabled()) log.trace("sourceDirectory: " + sourceDirectory.toPath());
+            if (log.isTraceEnabled()) log.trace("sourceDirectory: " + sourceDirectory.toPath() + infoAboutThread);
 
-            OpportunityChecker checker = new OpportunityChecker();
+
             if (!checker.checkMergDir(sourceDirectory)) {
-                log.info("Error merging operation. Wrong directory. ");
+                log.info("Error: Wrong directory. " + infoAboutThread);
                 throw new OperationException(OperationException.Type.NOTDIR);
             }
             for (Map.Entry<String, Integer> pair : checker.getAvailableFilesForMarging(sourceDirectory).entrySet()) {
                 if (log.isTraceEnabled()) log.trace(
-                        "partDelimeter:" + partDelimeter +
+                        "PART:" + PART +
                                 " filename:" + pair.getKey() +
-                                " parts:" + pair.getValue()
+                                " parts:" + pair.getValue() + infoAboutThread
                 );
 
                 int markIndex = pair.getKey().lastIndexOf(":");
                 String fileName = pair.getKey().substring(0, markIndex);
                 int dimension = Integer.parseInt(pair.getKey().substring(markIndex + 1));
                 File outputFile = new File(sourceDirectory.toPath() + "/" + fileName);
-                log.debug("Find " + pair.getValue() + "parts of " + outputFile.toPath());
+                log.debug("Find " + pair.getValue() + "parts of " + outputFile.toPath() + infoAboutThread);
                 userInOut.write("Merging " + pair.getValue() + " parts to:" + outputFile.toPath());
 
                 // TODO: 24.08.18 Сделать? проверку агрумента, который будет или создавать новый файл или перезаписывать существующий
@@ -78,15 +84,15 @@ public class Merging implements AbstractOperation {
 
                 long startPos = 0;
                 for (int i = 1; i <= pair.getValue(); i++) {
-                    File filePart = new File(sourceDirectory.toPath() + "/" + fileName + String.format(partDelimeter + "%0" + dimension + "d", i));
+                    File filePart = new File(sourceDirectory.toPath() + "/" + fileName + String.format(PART + "%0" + dimension + "d", i));
                     String threadName = "Thread-" + i;
                     statistic.put(threadName, "start");
 
                     if (log.isTraceEnabled()) log.trace(
                             "Put " + threadName + " task in list: \n" +
-                            filePart.toPath() + " to " + outputFile.getName() + "\n" +
-                            "startPos in out file: " + startPos +
-                            " size: " + filePart.length()
+                                    filePart.toPath() + " to " + outputFile.getName() + "\n" +
+                                    "startPos in out file: " + startPos +
+                                    " size: " + filePart.length() + infoAboutThread
                     );
                     result.add(
                             new MainDataCopier(
@@ -102,10 +108,10 @@ public class Merging implements AbstractOperation {
             }
             if (result.size() == 0) throw new OperationException(OperationException.Type.NOPARTSFILE);
         } catch (Exception e) {
-            log.debug(e.getMessage());
+            log.error("Error: " + e.getMessage() + " " + infoAboutThread);
             throw e;
         }
-        log.info("Add " + result.size() + " tasks to list");
+        log.info("Done. Get " + result.size() + " tasks(" + result.hashCode() + "). " + infoAboutThread);
         return result;
     }
 }

@@ -5,7 +5,7 @@ import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
 
-public class uBlockInfoTest {
+public class BlockInfoTest {
 
     @Test
     public void testGetCount() {

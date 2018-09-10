@@ -9,7 +9,7 @@ import java.util.*;
  * Verification of the possibility of executing the desired operations on files
  */
 public class OpportunityChecker {
-    private String partDelimeter = "Part";
+    private final String PART = "Part";
 
     /**
      * Checks the correctness of the source file
@@ -76,7 +76,7 @@ public class OpportunityChecker {
         for (File f : dir.listFiles()) if (f.isFile()) fileNames.add(f.getName());
 
         for (String s : fileNames) {
-            int index = s.lastIndexOf(partDelimeter);
+            int index = s.lastIndexOf(PART);
             if (index == -1) continue;
             String fileName = s.substring(0, index);
             int count = s.length() - index - 4;
@@ -95,7 +95,7 @@ public class OpportunityChecker {
                     break;
                 }
 
-                if (!fileNames.contains(String.format("%s" + partDelimeter + "%0" + count + "d", name, count))) {
+                if (!fileNames.contains(String.format("%s" + PART + "%0" + count + "d", name, count))) {
                     result.remove(pair.getKey());
                     break;
                 }
